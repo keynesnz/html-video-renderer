@@ -11,8 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check FFmpeg
+      - name: Install FFmpeg
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
           ffmpeg -version
 
       - name: Setup Node
