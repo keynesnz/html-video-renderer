@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>HTML Video Renderer</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #111;
+      color: #fff;
+    }
+
+    body {
+      padding: 30px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+    }
+
+    .description {
+      color: #999;
+      margin-bottom: 25px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 500px;
+
+      padding: 18px;
+
+      resize: vertical;
+
+      border: 1px solid #333;
+      border-radius: 10px;
+
+      background: #181818;
+      color: #fff;
+
+      font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+      font-size: 14px;
+      line-height: 1.5;
+
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #666;
+    }
+
+    .controls {
+      display: flex;
+
+      gap: 12px;
+
+      flex-wrap: wrap;
+
+      margin-top: 15px;
+    }
+
+    button,
+    label.button {
+
+      display: inline-block;
+
+      padding: 13px 20px;
+
+      border: 0;
+
+      border-radius: 8px;
+
+      background: #fff;
+
+      color: #111;
+
+      font-size: 15px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      text-decoration: none;
+    }
+
+    button:hover,
+    label.button:hover {
+      opacity: 0.85;
+    }
+
+    .secondary {
+      background: #333 !important;
+      color: #fff !important;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #status {
+
+      margin-top: 20px;
+
+      padding: 15px;
+
+      border-radius: 8px;
+
+      background: #181818;
+
+      color: #aaa;
+
+      white-space: pre-wrap;
+    }
+
+    .result {
+      margin-top: 20px;
+
+      padding: 20px;
+
+      border-radius: 10px;
+
+      background: #181818;
+    }
+
+    .result a {
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="container">
+
+    <h1>
+      HTML Video Renderer
+    </h1>
+
+    <p class="description">
+      Paste an HTML animation or upload an HTML file,
+      then render it to MP4.
+    </p>
+
+
+    <textarea
+      id="htmlInput"
+      placeholder="Paste your HTML animation here..."
+    ></textarea>
+
+
+    <div class="controls">
+
+      <label
+        class="button secondary"
+        for="fileInput"
+      >
+        Upload HTML
+      </label>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept=".html,.htm,text/html"
+      >
+
+
+      <button id="renderButton">
+        Render MP4
+      </button>
+
+    </div>
+
+
+    <div id="status">
+      Ready.
+    </div>
+
+
+    <div
+      id="result"
+      class="result hidden"
+    >
+
+      <strong>
+        Render started.
+      </strong>
+
+      <p>
+        The GitHub Actions renderer is processing
+        your animation.
+      </p>
+
+      <p>
+        Check the latest result here:
+      </p>
+
+      <a
+        href="https://keynesnz.github.io/html-video-renderer/"
+        target="_blank"
+      >
+        Open renderer page
+      </a>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    /*
+     * IMPORTANT:
+     *
+     * This must point to your Cloudflare Worker.
+     */
+
+    const WORKER_URL =
+      "https://YOUR-WORKER.workers.dev";
+
+
+    const htmlInput =
+      document.getElementById(
+        "htmlInput"
+      );
+
+    const fileInput =
+      document.getElementById(
+        "fileInput"
+      );
+
+    const renderButton =
+      document.getElementById(
+        "renderButton"
+      );
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+    const result =
+      document.getElementById(
+        "result"
+      );
+
+
+    /*
+     * Upload .html file
+     */
+
+    fileInput.addEventListener(
+      "change",
+      async () => {
+
+        const file =
+          fileInput.files[0];
+
+        if (!file) {
+          return;
+        }
+
+        if (
+          !file.name
+            .toLowerCase()
+            .endsWith(".html") &&
+          !file.name
+            .toLowerCase()
+            .endsWith(".htm")
+        ) {
+
+          status.textContent =
+            "Please select an HTML file.";
+
+          return;
+        }
+
+
+        try {
+
+          const text =
+            await file.text();
+
+          htmlInput.value =
+            text;
+
+          status.textContent =
+            `Loaded ${file.name}`;
+
+        } catch (error) {
+
+          status.textContent =
+            "Failed to read HTML file.";
+
+          console.error(error);
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Render
+     */
+
+    renderButton.addEventListener(
+      "click",
+      async () => {
+
+        const html =
+          htmlInput.value.trim();
+
+
+        if (!html) {
+
+          status.textContent =
+            "Please paste HTML or upload an HTML file.";
+
+          return;
+        }
+
+
+        renderButton.disabled =
+          true;
+
+        renderButton.textContent =
+          "Submitting...";
+
+        status.textContent =
+          "Uploading HTML to renderer...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              WORKER_URL + "/render",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "text/html"
+                },
+
+                body: html
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Render request failed."
+            );
+
+          }
+
+
+          status.textContent =
+            "Render started successfully.\n\n" +
+            "GitHub Actions is now rendering your video.";
+
+
+          result.classList.remove(
+            "hidden"
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          status.textContent =
+            "Error:\n" +
+            error.message;
+
+        } finally {
+
+          renderButton.disabled =
+            false;
+
+          renderButton.textContent =
+            "Render MP4";
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
