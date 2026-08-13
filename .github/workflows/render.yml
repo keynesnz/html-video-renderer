@@ -41,6 +41,7 @@ jobs:
             --url=file://${{ github.workspace }}/index.html \
             --video=${{ github.workspace }}/output.mp4 \
             --parallelism=1
+            --chrome-args="--no-sandbox"
 
       - name: Upload MP4
         uses: actions/upload-artifact@v4
