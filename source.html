@@ -1,47 +1,72 @@
-Sure — here’s a complete standalone HTML file with a simple animated text effect:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSS Text Animation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Text Animation</title>
 
-  <style>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
     body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #111;
-      font-family: Arial, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #050505;
+        font-family: Arial, sans-serif;
     }
 
     .text {
-      color: #00ffff;
-      font-size: 50px;
-      font-weight: bold;
-      animation: fadeSlide 2s ease-in-out infinite alternate;
+        font-size: clamp(40px, 10vw, 100px);
+        font-weight: 800;
+        color: white;
+        letter-spacing: 5px;
+
+        /* Animation */
+        animation:
+            slideIn 1.2s ease-out forwards,
+            glow 2s ease-in-out 1.2s infinite alternate;
     }
 
-    @keyframes fadeSlide {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(80px);
+            filter: blur(15px);
+        }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
     }
-  </style>
+
+    @keyframes glow {
+        from {
+            text-shadow:
+                0 0 5px #00ffff,
+                0 0 10px #00ffff;
+        }
+
+        to {
+            text-shadow:
+                0 0 10px #00ffff,
+                0 0 30px #00ffff,
+                0 0 60px #0088ff;
+        }
+    }
+</style>
 </head>
 
 <body>
 
-  <div class="text">Hello World!</div>
+    <h1 class="text">HELLO WORLD</h1>
 
 </body>
 </html>
