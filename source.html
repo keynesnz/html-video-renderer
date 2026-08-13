@@ -1,72 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSS Text Animation</title>
-
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap');
 
-    body {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #050505;
-        font-family: Arial, sans-serif;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .text {
-        font-size: clamp(40px, 10vw, 100px);
-        font-weight: 800;
-        color: white;
-        letter-spacing: 5px;
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 
-        /* Animation */
-        animation:
-            slideIn 1.2s ease-out forwards,
-            glow 2s ease-in-out 1.2s infinite alternate;
-    }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(80px);
-            filter: blur(15px);
-        }
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-        }
-    }
+  background: #111827;
+  transition: background 2.5s ease;
+}
 
-    @keyframes glow {
-        from {
-            text-shadow:
-                0 0 5px #00ffff,
-                0 0 10px #00ffff;
-        }
+/* Cinematic 1:1.69 canvas */
+.canvas {
+  position: relative;
+  width: min(100vw, 59.17vh);
+  height: min(169vw, 100vh);
 
-        to {
-            text-shadow:
-                0 0 10px #00ffff,
-                0 0 30px #00ffff,
-                0 0 60px #0088ff;
-        }
-    }
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 42px;
+
+  background:
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(255,255,255,.35),
+      transparent 45%
+    ),
+    linear-gradient(
+      145deg,
+      #ffd88a,
+      #ff9f68 45%,
+      #161b35
+    );
+
+  transition:
+    background 3s cubic-bezier(.4,0,.2,1),
+    transform .8s ease;
+
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.4),
+    inset 0 0 70px rgba(255,255,255,.15);
+}
+
+
+/* Moving atmospheric glow */
+.canvas::after {
+  content: "";
+  position: absolute;
+
+  width: 70%;
+  height: 70%;
+
+  border-radius: 50%;
+
+  background: rgba(255,245,190,.45);
+
+  filter: blur(100px);
+
+  animation: atmosphere 8s ease-in-out infinite alternate;
+}
+
+
+/* Text */
+.text {
+  position: relative;
+  z-index: 3;
+
+  color: white;
+
+  font-size: clamp(38px, 8vw, 82px);
+  font-weight: 700;
+
+  letter-spacing: -4px;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 8px 40px rgba(0,0,0,.2);
+}
+
+
+/* Cursor */
+.cursor {
+  display: inline-block;
+
+  width: 3px;
+  height: 0.9em;
+
+  margin-left: 7px;
+
+  vertical-align: -0.05em;
+
+  background: white;
+
+  border-radius: 3px;
+
+  box-shadow:
+    0 0 15px rgba(255,255,255,.8);
+
+  animation: cursorBlink .7s infinite;
+}
+
+
+/* Light sweep */
+.sweep {
+  position: absolute;
+  z-index: 4;
+
+  width: 35%;
+  height: 180%;
+
+  top: -40%;
+  left: -60%;
+
+  transform: rotate(20deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.28),
+      transparent
+    );
+
+  filter: blur(15px);
+
+  pointer-events: none;
+
+  animation: sweep 6s ease-in-out infinite;
+}
+
+
+/* Typing cursor */
+@keyframes cursorBlink {
+  0%, 45% {
+    opacity: 1;
+  }
+
+  46%, 100% {
+    opacity: 0;
+  }
+}
+
+
+/* Moving glow */
+@keyframes atmosphere {
+  from {
+    transform: translate(-25%, -10%) scale(.8);
+    opacity: .45;
+  }
+
+  to {
+    transform: translate(35%, 20%) scale(1.25);
+    opacity: .75;
+  }
+}
+
+
+/* Light sweep */
+@keyframes sweep {
+  0%, 25% {
+    left: -70%;
+  }
+
+  55%, 100% {
+    left: 140%;
+  }
+}
 </style>
 </head>
 
 <body>
 
-    <h1 class="text">HELLO WORLD</h1>
+<div class="canvas" id="canvas">
+
+  <div class="text">
+    <span id="text"></span><span class="cursor"></span>
+  </div>
+
+  <div class="sweep"></div>
+
+</div>
+
+
+<script>
+
+const messages = [
+  "Good Morning",
+  "Hello World",
+  "Have a Beautiful Day"
+];
+
+const backgrounds = [
+  `
+    radial-gradient(circle at 50% 20%, #fff6c7, transparent 45%),
+    linear-gradient(145deg, #ffd88a, #ff9b72, #11172e)
+  `,
+
+  `
+    radial-gradient(circle at 30% 30%, #b7e9ff, transparent 45%),
+    linear-gradient(145deg, #5b8cff, #8d6cff, #15152f)
+  `,
+
+  `
+    radial-gradient(circle at 70% 25%, #ffe5a8, transparent 45%),
+    linear-gradient(145deg, #ffb36b, #ff6f91, #241532)
+  `
+];
+
+const text = document.getElementById("text");
+const canvas = document.getElementById("canvas");
+
+let messageIndex = 0;
+
+const typingSpeed = 110;
+const deletingSpeed = 65;
+const pauseAfterTyping = 1800;
+const pauseAfterDeleting = 500;
+
+
+function typeMessage(message) {
+
+  let i = 0;
+
+  const typing = setInterval(() => {
+
+    text.textContent = message.slice(0, i);
+
+    i++;
+
+    if (i > message.length) {
+
+      clearInterval(typing);
+
+      setTimeout(() => {
+        deleteMessage(message);
+      }, pauseAfterTyping);
+
+    }
+
+  }, typingSpeed);
+}
+
+
+function deleteMessage(message) {
+
+  let i = message.length;
+
+  const deleting = setInterval(() => {
+
+    text.textContent = message.slice(0, i);
+
+    i--;
+
+    if (i < 0) {
+
+      clearInterval(deleting);
+
+      messageIndex =
+        (messageIndex + 1) % messages.length;
+
+      canvas.style.background =
+        backgrounds[messageIndex];
+
+      setTimeout(() => {
+
+        typeMessage(
+          messages[messageIndex]
+        );
+
+      }, pauseAfterDeleting);
+    }
+
+  }, deletingSpeed);
+}
+
+
+/* Start */
+canvas.style.background = backgrounds[0];
+
+setTimeout(() => {
+  typeMessage(messages[0]);
+}, 800);
+
+</script>
 
 </body>
 </html>
