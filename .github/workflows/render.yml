@@ -13,35 +13,55 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-
   render:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout
+      # ==================================================
+      # CHECKOUT
+      # ==================================================
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # ==================================================
+      # INSTALL FFMPEG
+      # ==================================================
 
       - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
+          echo "FFmpeg:"
           ffmpeg -version
 
 
-      - name: Setup Node
+      # ==================================================
+      # NODE
+      # ==================================================
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
 
+      # ==================================================
+      # INSTALL DEPENDENCIES
+      # ==================================================
+
       - name: Install dependencies
         run: |
           npm install
 
+
+      # ==================================================
+      # CHECK PUPPETEER
+      # ==================================================
 
       - name: Check Puppeteer
         run: |
@@ -49,7 +69,7 @@ jobs:
           const puppeteer = require("puppeteer");
 
           console.log(
-            "Chromium:"
+            "Chromium executable:"
           );
 
           console.log(
@@ -57,6 +77,37 @@ jobs:
           );
           NODE
 
+
+      # ==================================================
+      # CHECK SOURCE HTML
+      # ==================================================
+
+      - name: Check source HTML
+        run: |
+
+          if [ ! -f source.html ]; then
+
+            echo "ERROR:"
+            echo "source.html was not found."
+
+            exit 1
+
+          fi
+
+          echo "source.html found."
+
+          ls -lh source.html
+
+
+      # ==================================================
+      # CREATE TIMESTAMP
+      #
+      # Kansas City / Central Time
+      #
+      # Example:
+      #
+      # August-14-2026_00-52-31.mp4
+      # ==================================================
 
       - name: Create video filename
         run: |
@@ -71,25 +122,15 @@ jobs:
             >> "$GITHUB_ENV"
 
           echo ""
-          echo "Video:"
+          echo "================================"
+          echo "VIDEO:"
           echo "$VIDEO_NAME"
+          echo "================================"
 
 
-      - name: Check source HTML
-        run: |
-
-          if [ ! -f source.html ]; then
-
-            echo "ERROR:"
-            echo "source.html does not exist."
-
-            exit 1
-
-          fi
-
-          echo "Source HTML:"
-          ls -lh source.html
-
+      # ==================================================
+      # RENDER
+      # ==================================================
 
       - name: Render MP4
         run: |
@@ -99,10 +140,28 @@ jobs:
           node render.js
 
 
+      # ==================================================
+      # CHECK OUTPUT
+      # ==================================================
+
       - name: Check MP4
         run: |
 
+          if [ ! -f "$VIDEO_NAME" ]; then
+
+            echo "ERROR:"
+            echo "MP4 was not created."
+
+            exit 1
+
+          fi
+
+          echo ""
+          echo "MP4 created:"
           ls -lh "$VIDEO_NAME"
+
+          echo ""
+          echo "Video information:"
 
           ffprobe \
             -v error \
@@ -114,6 +173,16 @@ jobs:
             "$VIDEO_NAME"
 
 
+      # ==================================================
+      # PREPARE GITHUB PAGES
+      #
+      # IMPORTANT:
+      #
+      # We COPY the existing repository index.html.
+      #
+      # We DO NOT create a new index.html.
+      # ==================================================
+
       - name: Prepare Pages
         run: |
 
@@ -122,235 +191,74 @@ jobs:
           mkdir -p pages
 
 
-          #
-          # Copy newest video
-          #
+          # ----------------------------------------------
+          # Copy dashboard
+          # ----------------------------------------------
+
+          if [ ! -f index.html ]; then
+
+            echo "ERROR:"
+            echo "Dashboard index.html is missing."
+
+            exit 1
+
+          fi
+
+          cp index.html pages/index.html
+
+
+          # ----------------------------------------------
+          # Create videos directory
+          # ----------------------------------------------
+
+          mkdir -p pages/videos
+
+
+          # ----------------------------------------------
+          # Copy newest MP4
+          # ----------------------------------------------
 
           cp \
             "$VIDEO_NAME" \
-            "pages/$VIDEO_NAME"
+            "pages/videos/$VIDEO_NAME"
 
 
+          # ----------------------------------------------
+          # Save latest filename
           #
-          # Create viewer page
-          #
+          # Dashboard can read this if needed.
+          # ----------------------------------------------
 
-          cat > pages/index.html <<EOF
+          echo "$VIDEO_NAME" \
+            > pages/videos/latest.txt
 
-          <!DOCTYPE html>
 
-          <html lang="en">
+          # ----------------------------------------------
+          # Show final Pages structure
+          # ----------------------------------------------
 
-          <head>
+          echo ""
+          echo "================================"
+          echo "PAGES CONTENT"
+          echo "================================"
 
-            <meta charset="UTF-8">
+          find pages \
+            -maxdepth 3 \
+            -type f \
+            -printf '%p\n'
 
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1.0"
-            >
 
-            <title>
-              HTML Video Renderer
-            </title>
-
-            <style>
-
-              * {
-                box-sizing: border-box;
-              }
-
-              html,
-              body {
-                margin: 0;
-                padding: 0;
-
-                min-height: 100%;
-
-                font-family:
-                  Arial,
-                  Helvetica,
-                  sans-serif;
-
-                background: #111;
-
-                color: white;
-              }
-
-              body {
-
-                min-height: 100vh;
-
-                display: flex;
-
-                justify-content: center;
-
-                align-items: center;
-
-                padding: 24px;
-
-              }
-
-              .container {
-
-                width: 100%;
-
-                max-width: 720px;
-
-                text-align: center;
-
-              }
-
-              h1 {
-
-                margin:
-                  0 0 10px;
-
-              }
-
-              p {
-
-                color: #999;
-
-              }
-
-              video {
-
-                display: block;
-
-                width: 100%;
-
-                max-height: 75vh;
-
-                background: #000;
-
-                border-radius: 12px;
-
-              }
-
-              .buttons {
-
-                display: flex;
-
-                justify-content: center;
-
-                gap: 12px;
-
-                flex-wrap: wrap;
-
-                margin-top: 22px;
-
-              }
-
-              a {
-
-                display: inline-block;
-
-                padding:
-                  13px 22px;
-
-                border-radius: 8px;
-
-                background: white;
-
-                color: #111;
-
-                text-decoration: none;
-
-                font-weight: bold;
-
-              }
-
-              a.secondary {
-
-                background: #333;
-
-                color: white;
-
-              }
-
-              .filename {
-
-                margin-top: 18px;
-
-                color: #666;
-
-                font-size: 13px;
-
-                word-break:
-                  break-all;
-
-              }
-
-            </style>
-
-          </head>
-
-
-          <body>
-
-            <main
-              class="container"
-            >
-
-              <h1>
-                Latest Render
-              </h1>
-
-              <p>
-                $VIDEO_NAME
-              </p>
-
-
-              <video
-                controls
-                preload="metadata"
-                playsinline
-              >
-
-                <source
-                  src="./$VIDEO_NAME"
-                  type="video/mp4"
-                >
-
-              </video>
-
-
-              <div
-                class="buttons"
-              >
-
-                <a
-                  href="./$VIDEO_NAME"
-                  download="$VIDEO_NAME"
-                >
-                  Download MP4
-                </a>
-
-
-                <a
-                  class="secondary"
-                  href="./$VIDEO_NAME"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Open Video
-                </a>
-
-              </div>
-
-            </main>
-
-          </body>
-
-          </html>
-
-          EOF
-
+      # ==================================================
+      # CONFIGURE GITHUB PAGES
+      # ==================================================
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+
+      # ==================================================
+      # UPLOAD PAGES ARTIFACT
+      # ==================================================
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -358,6 +266,10 @@ jobs:
           path: pages
 
 
-      - name: Deploy Pages
+      # ==================================================
+      # DEPLOY
+      # ==================================================
+
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
