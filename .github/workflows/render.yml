@@ -8,42 +8,117 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   render:
     runs-on: ubuntu-latest
 
     steps:
+
+      # --------------------------------------------------
+      # Checkout repository
+      # --------------------------------------------------
+
       - name: Checkout
         uses: actions/checkout@v4
+
+
+      # --------------------------------------------------
+      # Install FFmpeg
+      # --------------------------------------------------
 
       - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
+
+          echo "FFmpeg version:"
           ffmpeg -version
+
+
+      # --------------------------------------------------
+      # Setup Node.js
+      # --------------------------------------------------
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+
+      # --------------------------------------------------
+      # Install Node dependencies
+      # --------------------------------------------------
+
       - name: Install dependencies
         run: |
           npm install
 
+
+      # --------------------------------------------------
+      # Check Puppeteer / Chromium
+      # --------------------------------------------------
+
+      - name: Check Puppeteer
+        run: |
+          node - <<'NODE'
+          const puppeteer = require("puppeteer");
+
+          console.log(
+            "Puppeteer Chromium:"
+          );
+
+          console.log(
+            puppeteer.executablePath()
+          );
+          NODE
+
+
+      # --------------------------------------------------
+      # Create timestamp filename
+      #
+      # Example:
+      #
+      # august-13-2026_22-30.mp4
+      #
+      # America/Chicago = Kansas City time
+      # --------------------------------------------------
+
       - name: Create video filename
         run: |
-          DATE=$(TZ=Asia/Jakarta date '+%B-%d-%Y_%H-%M')
-          echo "VIDEO_NAME=${DATE}.mp4" >> "$GITHUB_ENV"
-          echo "Video filename: ${DATE}.mp4"
+          VIDEO_NAME=$(TZ=America/Chicago date '+%B-%d-%Y_%H-%M').mp4
+
+          echo "VIDEO_NAME=$VIDEO_NAME" >> "$GITHUB_ENV"
+
+          echo "================================"
+          echo "Video filename:"
+          echo "$VIDEO_NAME"
+          echo "================================"
+
+
+      # --------------------------------------------------
+      # Render HTML → MP4
+      # --------------------------------------------------
 
       - name: Render MP4
         run: |
           OUTPUT="$VIDEO_NAME" node render.js
 
+
+      # --------------------------------------------------
+      # Check generated MP4
+      # --------------------------------------------------
+
       - name: Check MP4
         run: |
+          echo "Generated file:"
           ls -lh "$VIDEO_NAME"
+
+          echo ""
+          echo "Video information:"
 
           ffprobe \
             -v error \
@@ -54,130 +129,284 @@ jobs:
             -of default=noprint_wrappers=1 \
             "$VIDEO_NAME"
 
+
+      # --------------------------------------------------
+      # Prepare GitHub Pages
+      # --------------------------------------------------
+
       - name: Prepare Pages
         run: |
+
+          rm -rf pages
+
           mkdir -p pages
 
-          cp "$VIDEO_NAME" "pages/$VIDEO_NAME"
+          # Copy the new MP4
+          cp "$VIDEO_NAME" \
+             "pages/$VIDEO_NAME"
 
-cat > pages/index.html <<EOF
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML Video Renderer</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+          # Create the Pages index automatically
+          cat > pages/index.html <<EOF
+          <!DOCTYPE html>
 
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-    }
+          <html lang="en">
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 30px;
-    }
+          <head>
 
-    .container {
-      width: min(700px, 100%);
-      text-align: center;
-    }
+            <meta charset="UTF-8">
 
-    h1 {
-      margin-bottom: 10px;
-    }
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            >
 
-    p {
-      color: #aaa;
-      margin-bottom: 30px;
-    }
+            <title>
+              HTML Video Renderer
+            </title>
 
-    video {
-      width: 100%;
-      max-height: 70vh;
-      background: #000;
-      border-radius: 12px;
-      margin-bottom: 25px;
-    }
+            <style>
 
-    .button {
-      display: inline-block;
-      padding: 14px 24px;
-      border-radius: 8px;
-      background: white;
-      color: black;
-      text-decoration: none;
-      font-weight: bold;
-    }
+              * {
+                box-sizing: border-box;
+              }
 
-    .button:hover {
-      opacity: 0.85;
-    }
+              html,
+              body {
+                margin: 0;
+                padding: 0;
+                min-height: 100%;
+                font-family:
+                  Arial,
+                  Helvetica,
+                  sans-serif;
+                background: #111;
+                color: white;
+              }
 
-    .status {
-      margin-top: 20px;
-      color: #777;
-      font-size: 14px;
-    }
-  </style>
-</head>
+              body {
+                min-height: 100vh;
 
-<body>
+                display: flex;
 
-<main class="container">
+                justify-content: center;
 
-  <h1>HTML Video Renderer</h1>
+                align-items: center;
 
-  <p>Latest rendered video</p>
+                padding: 24px;
+              }
 
-  <video controls preload="metadata">
-    <source
-      src="./$VIDEO_NAME"
-      type="video/mp4"
-    >
-  </video>
+              .container {
+                width: 100%;
+                max-width: 720px;
+                text-align: center;
+              }
 
-  <br>
+              h1 {
+                margin: 0 0 10px;
+                font-size: 32px;
+              }
 
-  <a
-    class="button"
-    href="./$VIDEO_NAME"
-    download="$VIDEO_NAME"
-  >
-    Download MP4
-  </a>
+              .description {
+                margin: 0 0 28px;
+                color: #999;
+              }
 
-  <div class="status">
-    $VIDEO_NAME
-  </div>
+              .video-container {
+                width: 100%;
+                background: #000;
+                border-radius: 14px;
+                overflow: hidden;
 
-</main>
+                box-shadow:
+                  0 10px 40px
+                  rgba(0, 0, 0, 0.4);
+              }
 
-</body>
-</html>
-EOF
+              video {
+                display: block;
+                width: 100%;
+                height: auto;
+                max-height: 75vh;
+                background: #000;
+              }
 
-          echo "Published:"
-          echo "$VIDEO_NAME"
+              .buttons {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-top: 22px;
+              }
+
+              .button {
+                display: inline-block;
+
+                padding: 13px 22px;
+
+                border-radius: 8px;
+
+                background: white;
+                color: #111;
+
+                text-decoration: none;
+
+                font-size: 15px;
+                font-weight: bold;
+
+                transition:
+                  opacity 0.15s ease,
+                  transform 0.15s ease;
+              }
+
+              .button:hover {
+                opacity: 0.85;
+                transform: translateY(-1px);
+              }
+
+              .secondary {
+                background: #333;
+                color: white;
+              }
+
+              .filename {
+                margin-top: 18px;
+                color: #666;
+                font-size: 13px;
+                word-break: break-all;
+              }
+
+              .footer {
+                margin-top: 30px;
+                color: #555;
+                font-size: 12px;
+              }
+
+              @media (max-width: 600px) {
+
+                body {
+                  padding: 16px;
+                }
+
+                h1 {
+                  font-size: 26px;
+                }
+
+                .button {
+                  width: 100%;
+                }
+
+              }
+
+            </style>
+
+          </head>
+
+
+          <body>
+
+            <main class="container">
+
+              <h1>
+                HTML Video Renderer
+              </h1>
+
+              <p class="description">
+                Latest rendered video
+              </p>
+
+
+              <div class="video-container">
+
+                <video
+                  controls
+                  preload="metadata"
+                  playsinline
+                >
+
+                  <source
+                    src="./$VIDEO_NAME"
+                    type="video/mp4"
+                  >
+
+                  Your browser does not
+                  support HTML5 video.
+
+                </video>
+
+              </div>
+
+
+              <div class="buttons">
+
+                <a
+                  class="button"
+                  href="./$VIDEO_NAME"
+                  download="$VIDEO_NAME"
+                >
+                  Download MP4
+                </a>
+
+
+                <a
+                  class="button secondary"
+                  href="./$VIDEO_NAME"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open Video
+                </a>
+
+              </div>
+
+
+              <div class="filename">
+
+                $VIDEO_NAME
+
+              </div>
+
+
+              <div class="footer">
+
+                Generated with GitHub Actions
+
+              </div>
+
+            </main>
+
+          </body>
+
+          </html>
+          EOF
+
+
+          echo ""
+          echo "Pages files:"
+          find pages -maxdepth 2 -type f -printf '%p\n'
+
+
+      # --------------------------------------------------
+      # Configure GitHub Pages
+      # --------------------------------------------------
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+
+      # --------------------------------------------------
+      # Upload Pages artifact
+      # --------------------------------------------------
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: pages
+
+
+      # --------------------------------------------------
+      # Deploy Pages
+      # --------------------------------------------------
 
       - name: Deploy to GitHub Pages
         id: deployment
