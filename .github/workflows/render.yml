@@ -58,8 +58,115 @@ jobs:
         run: |
           mkdir -p pages
 
-          cp index.html pages/index.html
           cp "$VIDEO_NAME" "pages/$VIDEO_NAME"
+
+cat > pages/index.html <<EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Video Renderer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .container {
+      width: min(700px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    video {
+      width: 100%;
+      max-height: 70vh;
+      background: #000;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 24px;
+      border-radius: 8px;
+      background: white;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      opacity: 0.85;
+    }
+
+    .status {
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<main class="container">
+
+  <h1>HTML Video Renderer</h1>
+
+  <p>Latest rendered video</p>
+
+  <video controls preload="metadata">
+    <source
+      src="./$VIDEO_NAME"
+      type="video/mp4"
+    >
+  </video>
+
+  <br>
+
+  <a
+    class="button"
+    href="./$VIDEO_NAME"
+    download="$VIDEO_NAME"
+  >
+    Download MP4
+  </a>
+
+  <div class="status">
+    $VIDEO_NAME
+  </div>
+
+</main>
+
+</body>
+</html>
+EOF
 
           echo "Published:"
           echo "$VIDEO_NAME"
