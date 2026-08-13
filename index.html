@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>HTML Video Renderer</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #101010;
+      color: #fff;
+    }
+
+    body {
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 0 0 25px;
+      color: #999;
+    }
+
+    textarea {
+      display: block;
+
+      width: 100%;
+      min-height: 420px;
+
+      padding: 16px;
+
+      resize: vertical;
+
+      border: 1px solid #333;
+      border-radius: 10px;
+
+      outline: none;
+
+      background: #181818;
+      color: #fff;
+
+      font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: #777;
+    }
+
+    .controls {
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-top: 14px;
+    }
+
+    button,
+    .button {
+
+      display: inline-flex;
+
+      align-items: center;
+      justify-content: center;
+
+      min-height: 46px;
+
+      padding:
+        0 20px;
+
+      border: 0;
+
+      border-radius: 8px;
+
+      background: #fff;
+      color: #111;
+
+      font-size: 15px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      text-decoration: none;
+    }
+
+    button:hover,
+    .button:hover {
+      opacity: .85;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #333;
+      color: #fff;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #status {
+
+      margin-top: 18px;
+
+      padding: 14px 16px;
+
+      border-radius: 8px;
+
+      background: #181818;
+
+      color: #aaa;
+
+      white-space: pre-wrap;
+
+      line-height: 1.5;
+    }
+
+    .video-section {
+
+      margin-top: 30px;
+
+      padding: 20px;
+
+      border-radius: 12px;
+
+      background: #181818;
+    }
+
+    .video-section h2 {
+
+      margin-top: 0;
+
+      font-size: 20px;
+
+    }
+
+    video {
+
+      display: block;
+
+      width: 100%;
+
+      max-height: 75vh;
+
+      background: #000;
+
+      border-radius: 10px;
+    }
+
+    .video-name {
+
+      margin-top: 12px;
+
+      color: #777;
+
+      font-size: 13px;
+
+      word-break: break-all;
+    }
+
+    .video-buttons {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-top: 15px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      opacity: .7;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="container">
+
+    <h1>
+      HTML Video Renderer
+    </h1>
+
+    <p class="subtitle">
+      Paste an HTML animation or upload an HTML file,
+      then render it to MP4.
+    </p>
+
+
+    <!-- ==========================================
+         HTML INPUT
+         ========================================== -->
+
+    <textarea
+      id="htmlInput"
+      placeholder="Paste your HTML animation here..."
+    ></textarea>
+
+
+    <!-- ==========================================
+         CONTROLS
+         ========================================== -->
+
+    <div class="controls">
+
+      <label
+        class="button secondary"
+        for="fileInput"
+      >
+        Upload HTML
+      </label>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept=".html,.htm,text/html"
+      >
+
+
+      <button
+        id="renderButton"
+      >
+        Render MP4
+      </button>
+
+    </div>
+
+
+    <!-- ==========================================
+         STATUS
+         ========================================== -->
+
+    <div id="status">
+      Checking latest render...
+    </div>
+
+
+    <!-- ==========================================
+         VIDEO
+         ========================================== -->
+
+    <section
+      id="videoSection"
+      class="video-section hidden"
+    >
+
+      <h2>
+        Latest Video
+      </h2>
+
+
+      <video
+        id="video"
+        controls
+        playsinline
+        preload="metadata"
+      >
+        <source
+          id="videoSource"
+          type="video/mp4"
+        >
+      </video>
+
+
+      <div
+        id="videoName"
+        class="video-name"
+      ></div>
+
+
+      <div class="video-buttons">
+
+        <a
+          id="downloadButton"
+          class="button"
+          href="#"
+          download
+        >
+          Download MP4
+        </a>
+
+
+        <a
+          id="openButton"
+          class="button secondary"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >
+          Open Video
+        </a>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    /*
+     * ============================================
+     * CONFIGURATION
+     * ============================================
+     *
+     * Replace this with your real Cloudflare
+     * Worker URL.
+     */
+
+    const WORKER_URL =
+      "https://YOUR-WORKER.workers.dev";
+
+
+    /*
+     * GitHub Pages location.
+     *
+     * This matches:
+     *
+     * https://keynesnz.github.io/html-video-renderer/
+     */
+
+    const SITE_URL =
+      "https://keynesnz.github.io/html-video-renderer";
+
+
+    /*
+     * latest.txt is created by render.yml.
+     */
+
+    const LATEST_URL =
+      SITE_URL +
+      "/videos/latest.txt";
+
+
+    /*
+     * ============================================
+     * ELEMENTS
+     * ============================================
+     */
+
+    const htmlInput =
+      document.getElementById(
+        "htmlInput"
+      );
+
+    const fileInput =
+      document.getElementById(
+        "fileInput"
+      );
+
+    const renderButton =
+      document.getElementById(
+        "renderButton"
+      );
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+    const videoSection =
+      document.getElementById(
+        "videoSection"
+      );
+
+    const video =
+      document.getElementById(
+        "video"
+      );
+
+    const videoSource =
+      document.getElementById(
+        "videoSource"
+      );
+
+    const videoName =
+      document.getElementById(
+        "videoName"
+      );
+
+    const downloadButton =
+      document.getElementById(
+        "downloadButton"
+      );
+
+    const openButton =
+      document.getElementById(
+        "openButton"
+      );
+
+
+    /*
+     * ============================================
+     * LOAD HTML FILE
+     * ============================================
+     */
+
+    fileInput.addEventListener(
+      "change",
+      async () => {
+
+        const file =
+          fileInput.files[0];
+
+        if (!file) {
+          return;
+        }
+
+
+        const name =
+          file.name.toLowerCase();
+
+
+        if (
+          !name.endsWith(".html") &&
+          !name.endsWith(".htm")
+        ) {
+
+          status.textContent =
+            "Please select an HTML file.";
+
+          return;
+
+        }
+
+
+        try {
+
+          const text =
+            await file.text();
+
+          htmlInput.value =
+            text;
+
+          status.textContent =
+            `Loaded: ${file.name}`;
+
+        } catch (error) {
+
+          console.error(error);
+
+          status.textContent =
+            "Failed to read HTML file.";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * ============================================
+     * LOAD LATEST VIDEO
+     * ============================================
+     */
+
+    async function loadLatestVideo() {
+
+      try {
+
+        /*
+         * Cache busting prevents the browser
+         * from showing an old latest.txt.
+         */
+
+        const response =
+          await fetch(
+            LATEST_URL +
+            "?t=" +
+            Date.now(),
+            {
+              cache: "no-store"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "latest.txt not available"
+          );
+
+        }
+
+
+        const filename =
+          (
+            await response.text()
+          ).trim();
+
+
+        if (!filename) {
+
+          throw new Error(
+            "No video filename"
+          );
+
+        }
+
+
+        const videoURL =
+          SITE_URL +
+          "/videos/" +
+          encodeURIComponent(
+            filename
+          );
+
+
+        /*
+         * Update video.
+         */
+
+        videoSource.src =
+          videoURL;
+
+        video.load();
+
+
+        videoName.textContent =
+          filename;
+
+
+        downloadButton.href =
+          videoURL;
+
+        downloadButton.download =
+          filename;
+
+
+        openButton.href =
+          videoURL;
+
+
+        videoSection.classList.remove(
+          "hidden"
+        );
+
+
+        status.textContent =
+          "Latest video: " +
+          filename;
+
+
+        return filename;
+
+
+      } catch (error) {
+
+        console.log(
+          "No rendered video yet."
+        );
+
+        return null;
+
+      }
+
+    }
+
+
+    /*
+     * ============================================
+     * WAIT FOR NEW VIDEO
+     * ============================================
+     */
+
+    async function waitForNewVideo(
+      oldFilename
+    ) {
+
+      const maxAttempts =
+        120;
+
+      const interval =
+        5000;
+
+
+      for (
+        let attempt = 0;
+        attempt < maxAttempts;
+        attempt++
+      ) {
+
+        status.textContent =
+          "Rendering...\n\n" +
+          "Waiting for GitHub Actions " +
+          `(${attempt + 1}/${maxAttempts})`;
+
+
+        const filename =
+          await loadLatestVideo();
+
+
+        if (
+          filename &&
+          filename !== oldFilename
+        ) {
+
+          status.textContent =
+            "Render complete!\n\n" +
+            filename;
+
+          return true;
+
+        }
+
+
+        await new Promise(
+          resolve =>
+            setTimeout(
+              resolve,
+              interval
+            )
+        );
+
+      }
+
+
+      status.textContent =
+        "Rendering is taking longer than expected.\n\n" +
+        "The GitHub Action may still be running.";
+
+      return false;
+
+    }
+
+
+    /*
+     * ============================================
+     * RENDER
+     * ============================================
+     */
+
+    renderButton.addEventListener(
+      "click",
+      async () => {
+
+        const html =
+          htmlInput.value.trim();
+
+
+        if (!html) {
+
+          status.textContent =
+            "Please paste HTML or upload an HTML file.";
+
+          return;
+
+        }
+
+
+        /*
+         * Remember current video.
+         *
+         * This lets us detect the new one.
+         */
+
+        const oldFilename =
+          await loadLatestVideo();
+
+
+        renderButton.disabled =
+          true;
+
+        renderButton.textContent =
+          "Submitting...";
+
+
+        status.textContent =
+          "Uploading HTML to renderer...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              WORKER_URL +
+              "/render",
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "text/html; charset=utf-8"
+                },
+
+                body: html
+
+              }
+            );
+
+
+          let data = null;
+
+          try {
+
+            data =
+              await response.json();
+
+          } catch {
+
+            throw new Error(
+              "Worker returned an invalid response."
+            );
+
+          }
+
+
+          if (!response.ok) {
+
+            const details =
+              data.github_response
+                ? "\n\n" +
+                  data.github_response
+                : "";
+
+
+            throw new Error(
+              (
+                data.error ||
+                "Render request failed."
+              ) +
+              details
+            );
+
+          }
+
+
+          status.textContent =
+            "HTML uploaded successfully.\n\n" +
+            "GitHub Actions has started rendering.";
+
+
+          renderButton.textContent =
+            "Rendering...";
+
+
+          /*
+           * Wait for the new MP4.
+           */
+
+          await waitForNewVideo(
+            oldFilename
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          status.textContent =
+            "Error:\n\n" +
+            error.message;
+
+        } finally {
+
+          renderButton.disabled =
+            false;
+
+          renderButton.textContent =
+            "Render MP4";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * ============================================
+     * INITIAL LOAD
+     * ============================================
+     */
+
+    loadLatestVideo();
+
+  </script>
+
+</body>
+
+</html>
