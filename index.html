@@ -2,9 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>HTML Video Test</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       margin: 0;
@@ -15,19 +18,22 @@
     }
 
     #scene {
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
 
       width: 1080px;
       height: 1920px;
 
       overflow: hidden;
 
-      background: #111;
+      background:
+        linear-gradient(
+          135deg,
+          #111,
+          #333
+        );
     }
 
-    .box {
+    #box {
       position: absolute;
 
       width: 300px;
@@ -36,64 +42,47 @@
       left: 390px;
       top: 810px;
 
-      background: #fff;
-
       border-radius: 50%;
 
-      transform-origin: center;
+      background: white;
     }
   </style>
 </head>
 
 <body>
 
-  <div id="scene">
-    <div class="box" id="box"></div>
-  </div>
+<div id="scene">
+  <div id="box"></div>
+</div>
 
-  <script>
-    const FPS = 30;
-    const DURATION = 6;
+<script>
+  const box =
+    document.getElementById("box");
 
-    window.getInfo = function () {
-      return {
-        fps: FPS,
-        numberOfFrames: FPS * DURATION
-      };
-    };
-
-    window.seekToFrame = async function (frameNumber) {
-
-      const time =
-        frameNumber / FPS;
-
-      const progress =
-        time / DURATION;
+  window.seekToFrame =
+    function(frame, time, fps) {
 
       /*
-       * Move left → right → left.
+       * 6 second animation.
        */
+      const progress =
+        time / 6;
+
       const x =
         Math.sin(
           progress * Math.PI * 2
         ) * 300;
 
-      /*
-       * Scale animation.
-       */
       const scale =
         1 +
         Math.sin(
           progress * Math.PI * 4
         ) * 0.15;
 
-      const box =
-        document.getElementById("box");
-
       box.style.transform =
         `translateX(${x}px) scale(${scale})`;
     };
-  </script>
+</script>
 
 </body>
 </html>
