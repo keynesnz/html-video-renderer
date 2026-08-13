@@ -1,0 +1,13 @@
+{
+  "name": "html-video-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple HTML to MP4 renderer",
+  "main": "render.js",
+  "scripts": {
+    "render": "node render.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.15.0"
+  }
+}
