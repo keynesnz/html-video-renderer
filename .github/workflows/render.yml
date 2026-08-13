@@ -1,0 +1,70 @@
+name: Render MP4
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Check Puppeteer
+        run: |
+          node -e "const p=require('puppeteer'); console.log('Chromium:', p.executablePath())"
+
+      - name: Render MP4
+        run: |
+          node render.js
+
+      - name: Check MP4
+        run: |
+          ls -lh output.mp4
+
+          ffprobe \
+            -v error \
+            -show_entries \
+            format=duration,size \
+            -show_entries \
+            stream=width,height,r_frame_rate,codec_name \
+            -of default=noprint_wrappers=1 \
+            output.mp4
+
+      - name: Prepare Pages
+        run: |
+          mkdir pages
+          cp output.mp4 pages/output.mp4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
