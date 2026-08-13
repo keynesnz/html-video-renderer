@@ -3,7 +3,7 @@ const { spawn } = require("child_process");
 const path = require("path");
 
 const FPS = 30;
-const DURATION = 6;
+const DURATION = 15;
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
