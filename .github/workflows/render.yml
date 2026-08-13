@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -15,55 +16,42 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
+
           ffmpeg -version
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Clone renderer
+      - name: Install dependencies
         run: |
-          git clone \
-            https://github.com/dtinth/html5-animation-video-renderer.git \
-            renderer
+          npm install
 
-      - name: Install renderer
-        working-directory: renderer
+      - name: Check Puppeteer
         run: |
-          corepack enable
-          yarn install
+          node -e "const p=require('puppeteer'); console.log(p.executablePath())"
 
-      - name: Set Chromium flags
+      - name: Render video
         run: |
-          export PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox"
-          export CHROME_ARGS="--no-sandbox --disable-setuid-sandbox"
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+          node render.js
 
-          echo "PUPPETEER_ARGS=$PUPPETEER_ARGS" >> $GITHUB_ENV
-          echo "CHROME_ARGS=$CHROME_ARGS" >> $GITHUB_ENV
-          echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=$PUPPETEER_SKIP_CHROMIUM_DOWNLOAD" >> $GITHUB_ENV
-
-      - name: Check Chromium
-        working-directory: renderer
-        run: |
-          node -e "const puppeteer=require('puppeteer'); console.log('Puppeteer loaded'); console.log('Chrome:', puppeteer.executablePath());"
-
-      - name: Render
-        working-directory: renderer
-        run: |
-          node render \
-            --url=file://${{ github.workspace }}/index.html \
-            --video=${{ github.workspace }}/output.mp4 \
-            --parallelism=1
-
-      - name: Check output
+      - name: Check MP4
         run: |
           ls -lh output.mp4
-          ffprobe output.mp4
+
+          ffprobe \
+            -v error \
+            -show_entries \
+            format=duration,size \
+            -show_entries \
+            stream=width,height,r_frame_rate,codec_name \
+            -of default=noprint_wrappers=1 \
+            output.mp4
 
       - name: Upload MP4
         uses: actions/upload-artifact@v4
         with:
-          name: video
+          name: rendered-video
           path: output.mp4
