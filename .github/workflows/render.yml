@@ -34,21 +34,77 @@ jobs:
           corepack enable
           yarn install
 
-      - name: Find Puppeteer launch code
+      - name: Patch Puppeteer sandbox
         working-directory: renderer
         run: |
-          echo "=== Searching for puppeteer.launch ==="
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = list(
+              Path("src").rglob("*.js")
+          ) + list(
+              Path(".").glob("*.js")
+          )
+
+          found = False
+
+          for file in files:
+              if "node_modules" in file.parts:
+                  continue
+
+              text = file.read_text()
+
+              if "puppeteer.launch" not in text:
+                  continue
+
+              print("Patching:", file)
+
+              old = "puppeteer.launch({"
+
+              new = """puppeteer.launch({
+            args: [
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+              "--disable-dev-shm-usage"
+            ],"""
+
+              if old in text:
+                  text = text.replace(
+                      old,
+                      new,
+                      1
+                  )
+
+                  file.write_text(text)
+                  found = True
+
+          if not found:
+              print("Could not find puppeteer.launch in source files.")
+              print("Searching entire project...")
+
+              for file in Path(".").rglob("*.js"):
+                  if "node_modules" in file.parts:
+                      continue
+
+                  try:
+                      text = file.read_text()
+                  except:
+                      continue
+
+                  if "puppeteer.launch" in text:
+                      print("FOUND:", file)
+
+              raise SystemExit(1)
+
+          print("Puppeteer sandbox patch complete.")
+
+      - name: Verify patch
+        working-directory: renderer
+        run: |
           grep -RIn \
             --exclude-dir=node_modules \
-            "puppeteer.launch" \
+            "no-sandbox" \
             . || true
-
-          echo "=== Renderer files ==="
-          find . \
-            -maxdepth 3 \
-            -type f \
-            ! -path "./node_modules/*" \
-            | sort
 
       - name: Render
         working-directory: renderer
