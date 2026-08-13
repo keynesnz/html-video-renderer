@@ -1,0 +1,70 @@
+name: Render MP4
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Clone renderer
+        run: |
+          git clone \
+            https://github.com/dtinth/html5-animation-video-renderer.git \
+            renderer
+
+      - name: Install renderer
+        working-directory: renderer
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Find Puppeteer launch code
+        working-directory: renderer
+        run: |
+          echo "=== Searching for puppeteer.launch ==="
+          grep -RIn \
+            --exclude-dir=node_modules \
+            "puppeteer.launch" \
+            . || true
+
+          echo "=== Renderer files ==="
+          find . \
+            -maxdepth 3 \
+            -type f \
+            ! -path "./node_modules/*" \
+            | sort
+
+      - name: Render
+        working-directory: renderer
+        run: |
+          node render \
+            --url=file://${{ github.workspace }}/index.html \
+            --video=${{ github.workspace }}/output.mp4 \
+            --parallelism=1
+
+      - name: Check output
+        run: |
+          ls -lh output.mp4
+          ffprobe output.mp4
+
+      - name: Upload MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: video
+          path: output.mp4
