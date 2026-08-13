@@ -28,6 +28,11 @@ jobs:
             https://github.com/dtinth/html5-animation-video-renderer.git \
             renderer
 
+      - name: Patch Chromium sandbox
+        working-directory: renderer
+        run: |
+         grep -RIl "puppeteer.launch" . | head
+
       - name: Install renderer
         working-directory: renderer
         run: |
