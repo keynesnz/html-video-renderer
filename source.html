@@ -1,417 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PIXEL | Zai Experience</title>
-    
-    <!-- Import Premium Apple-style Font: SF Pro Display -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Product Banner</title>
 
-    <style>
-        :root {
-            --bg-color: #000000;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --accent-color: #cd7f32; /* Classic Gold */
-            --meta-color: #52525b;
-            --screen-width: 100vw;
-            --screen-height: 177.77vw; /* 16:9 aspect ratio -> 9:16 on display */
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+  <style>
+    :root {
+      --bg: #05070b;
+      --white: #f7f9ff;
+      --muted: #8b93a7;
+      --blue: #66b8ff;
+      --violet: #9a7cff;
+      --cyan: #46f0ff;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            background-color: #111;
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #020307;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-        /* Main Container simulates the device aspect ratio */
-        .app-container {
-            width: 100%;
-            height: 100vh;
-            background: var(--bg-color);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      color: var(--white);
+    }
 
-        /* Pixel Art MASCOT */
-        .character-container {
-            position: absolute;
-            top: 25%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 150px;
-            height: 150px;
-            z-index: 2;
-            pointer-events: none; /* Let clicks pass through */
-        }
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
 
-        .pixel-char {
-            width: 100%;
-            height: 100%;
-            background: var(--accent-color);
-            box-shadow: 0 0 30px var(--accent-color);
-            /* Using a mosaic effect to simulate pixels via clip-path on children */
-            position: relative;
-        }
+      /* 2K, 19:6 ratio */
+      width: min(2048px, 100vw);
+      aspect-ratio: 19 / 6;
 
-        .pixel-eye {
-            position: absolute;
-            width: 30%;
-            height: 30%;
-            background: #000;
-            top: 35%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 4px;
-            box-shadow: inset -5px -5px 0 #6b4a22;
-        }
+      min-height: 260px;
+      background:
+        radial-gradient(
+          ellipse at 76% 45%,
+          rgba(72, 137, 255, 0.2),
+          transparent 30%
+        ),
+        radial-gradient(
+          ellipse at 38% 90%,
+          rgba(130, 69, 255, 0.13),
+          transparent 34%
+        ),
+        linear-gradient(115deg, #030408 0%, #090c14 50%, #030408 100%);
 
-        .pixel-mouth {
-            position: absolute;
-            width: 40%;
-            height: 12px;
-            bottom: 20%;
-            left: 30%;
-            background: #2a0a00;
-            border-radius: 12px;
-        }
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 25px 100px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
 
-        /* Subtle "float" animation using CSS variables */
-        @keyframes float {
-            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-            50% { transform: translate(-50%, -50%) translateY(-15px); }
-        }
+    /* Fine premium grid */
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(90deg, black, transparent 82%);
+    }
 
-        .pixel-char {
-            animation: float 4s ease-in-out infinite;
-        }
+    /* Animated diagonal light sweep */
+    .hero::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: -80%;
+      left: -30%;
+      width: 22%;
+      height: 260%;
+      transform: rotate(25deg);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.03) 28%,
+        rgba(116, 207, 255, 0.46) 50%,
+        rgba(255, 255, 255, 0.03) 72%,
+        transparent
+      );
+      filter: blur(12px);
+      animation: lightSweep 5.8s ease-in-out infinite;
+      pointer-events: none;
+    }
 
-        /* UI Overlay Elements */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 24px 20px 0;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-        }
+    .noise {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      opacity: 0.035;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+    }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            position: relative;
-            z-index: 5;
-        }
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      padding: clamp(28px, 6vw, 100px);
+    }
 
-        /* Text Animations */
-        .anim-text-wrap {
-            overflow: hidden;
-            display: inline-block;
-        }
+    .copy {
+      max-width: 650px;
+    }
 
-        .headline {
-            font-size: 3.5rem;
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #fff 0%, #999 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0; /* Hidden initially */
-            transform: translateY(50px);
-        }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      color: var(--blue);
+      font-size: clamp(10px, 0.75vw, 16px);
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      animation: fadeUp 0.9s 0.1s both;
+    }
 
-        .sub-headline {
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            max-width: 300px;
-            line-height: 1.5;
-            margin-bottom: 40px;
-            opacity: 0;
-            transform: translateY(30px);
-        }
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan));
+      box-shadow: 0 0 12px var(--cyan);
+    }
 
-        .tech-specs {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            width: 100%;
-            opacity: 0;
-            transform: scale(0.95);
-        }
+    h1 {
+      margin: 0;
+      max-width: 800px;
+      font-size: clamp(42px, 6.6vw, 132px);
+      line-height: 0.86;
+      letter-spacing: -0.075em;
+      font-weight: 800;
+      animation: fadeUp 0.9s 0.25s both;
+    }
 
-        .spec-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 24px;
-            text-align: left;
-            transition: transform 0.3s ease;
-        }
-        
-        .spec-card:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.1);
-        }
+    h1 span {
+      display: block;
+      color: transparent;
+      background: linear-gradient(
+        110deg,
+        #ffffff 5%,
+        #a9d8ff 38%,
+        #ffffff 63%,
+        #6578ff 100%
+      );
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: drop-shadow(0 0 26px rgba(100, 180, 255, 0.16));
+    }
 
-        .spec-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent-color);
-            margin-bottom: 8px;
-        }
+    .description {
+      max-width: 430px;
+      margin: 26px 0 0;
+      color: var(--muted);
+      font-size: clamp(12px, 1vw, 20px);
+      line-height: 1.55;
+      animation: fadeUp 0.9s 0.4s both;
+    }
 
-        .spec-value {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #fff;
-        }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 30px;
+      padding: 13px 21px;
+      color: #fff;
+      border: 1px solid rgba(160, 218, 255, 0.55);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow:
+        inset 0 0 20px rgba(75, 177, 255, 0.12),
+        0 0 28px rgba(79, 163, 255, 0.12);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      animation: fadeUp 0.9s 0.55s both;
+    }
 
-        /* Light Sweep Animation */
-        .light-sweeper {
-            position: absolute;
-            top: 0;
-            left: -100%; /* Start off screen left */
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(205, 127, 50, 0.3), transparent);
-            transform: skewX(-20deg);
-            pointer-events: none;
-            z-index: 4;
-            mix-blend-mode: overlay;
-        }
+    .cta i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan);
+    }
 
-        /* Floating Particles */
-        .particle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-        }
+    .product-orb {
+      position: absolute;
+      right: 11%;
+      top: 50%;
+      width: clamp(150px, 20vw, 390px);
+      aspect-ratio: 1;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, #d5f5ff 0 1%, transparent 2%),
+        radial-gradient(circle, rgba(73, 216, 255, 0.52), transparent 47%),
+        radial-gradient(circle, rgba(101, 85, 255, 0.3), transparent 66%);
+      filter: blur(0.2px);
+      box-shadow:
+        0 0 50px rgba(63, 193, 255, 0.25),
+        0 0 150px rgba(83, 104, 255, 0.22);
+      animation: orbFloat 5s ease-in-out infinite;
+    }
 
-        /* Animations Keyframes */
-        @keyframes sweep {
-            0% { left: -50%; }
-            100% { left: 150%; }
-        }
+    .product-orb::before,
+    .product-orb::after {
+      content: "";
+      position: absolute;
+      inset: 8%;
+      border: 1px solid rgba(158, 224, 255, 0.45);
+      border-radius: 50%;
+      transform: rotate(35deg) scaleX(1.8);
+      box-shadow: 0 0 18px rgba(91, 205, 255, 0.45);
+    }
 
-        @keyframes textFadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .product-orb::after {
+      transform: rotate(-35deg) scaleX(1.8);
+      opacity: 0.6;
+    }
 
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+    .spec {
+      position: absolute;
+      right: 5%;
+      bottom: 10%;
+      color: rgba(210, 229, 255, 0.62);
+      font-size: clamp(9px, 0.7vw, 14px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      animation: fadeIn 1.2s 0.8s both;
+    }
 
-        /* Interactive Element for Character Cursor */
-        .cursor-light {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            transition: width 0.2s, height 0.2s;
-            z-index: 3;
-        }
+    @keyframes lightSweep {
+      0%,
+      20% {
+        transform: translateX(-20vw) rotate(25deg);
+        opacity: 0;
+      }
 
-        /* Responsive scaling for larger screens */
-        @media (min-height: 900px) {
-            .app-container {
-                width: 600px;
-                height: auto;
-                min-height: 100vh;
-                aspect-ratio: 9/16;
-                border-radius: 40px;
-                overflow: hidden;
-                box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            }
-            body { background: #000; }
-            .headline { font-size: 5rem; }
-            .pixel-char { width: 250px; height: 250px; }
-        }
+      35% {
+        opacity: 1;
+      }
 
-    </style>
+      75% {
+        opacity: 0.85;
+      }
+
+      100% {
+        transform: translateX(145vw) rotate(25deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+        filter: blur(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes orbFloat {
+      0%,
+      100% {
+        transform: translateY(-50%) scale(1);
+      }
+
+      50% {
+        transform: translateY(calc(-50% - 12px)) scale(1.045);
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 0;
+      }
+
+      .hero {
+        min-height: 340px;
+        aspect-ratio: auto;
+      }
+
+      .content {
+        align-items: flex-start;
+        padding: 42px 28px;
+      }
+
+      .product-orb {
+        right: -12%;
+        bottom: -14%;
+        top: auto;
+        transform: none;
+        width: 230px;
+        opacity: 0.7;
+      }
+
+      .spec {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <main class="hero">
+    <div class="noise"></div>
 
-    <div class="app-container" id="app">
-        
-        <!-- Cursor Follower Light -->
-        <div class="cursor-light" id="cursor"></div>
+    <div class="content">
+      <section class="copy">
+        <div class="eyebrow">Next generation performance</div>
 
-        <!-- Top Status Bar -->
-        <div class="status-bar">
-            <span id="clock">9:41</span>
-            <span>5G</span>
+        <h1>
+          <span>Beyond</span>
+          limits.
+        </h1>
+
+        <p class="description">
+          Precision engineered power inside an impossibly refined design.
+        </p>
+
+        <div class="cta">
+          <i></i>
+          Experience the future
         </div>
+      </section>
 
-        <!-- Scanning Light (Background Effect) -->
-        <div class="light-sweeper" id="sweep"></div>
-
-        <!-- The Pixel Character -->
-        <div class="character-container" id="character">
-            <div class="pixel-char">
-                <div class="pixel-eye"></div>
-                <div class="pixel-mouth"></div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            
-            <div class="anim-content-wrap">
-                <h1 class="headline" id="headline">NEON<br>REALITY</h1>
-            </div>
-            
-            <p class="sub-headline" id="subhead">Experience the next generation of pixel-perfect immersion.</p>
-
-            <div class="tech-specs" id="specs">
-                <div class="spec-card">
-                    <div class="spec-title">Resolution</div>
-                    <div class="spec-value">8K/60</div>
-                </div>
-                <div class="spec-card">
-                    <div class="spec-title">Colors</div>
-                    <div class="spec-value">1B+</div>
-                </div>
-                <div class="spec-card">
-                    <div class="spec-title">Power</div>
-                    <div class="spec-value">Tensor X</div>
-                </div>
-                <div class="spec-card">
-                    <div class="spec-title">Battery</div>
-                    <div class="spec-value">48h LiPo</div>
-                </div>
-            </div>
-
-        </div>
-        
+      <div class="product-orb" aria-hidden="true"></div>
+      <div class="spec">Ultra performance / 2026</div>
     </div>
-
-    <script>
-        // DOM Elements
-        const sweep = document.getElementById('sweep');
-        const cursor = document.getElementById('cursor');
-        const character = document.getElementById('character');
-        const specs = document.getElementById('specs');
-        const headline = document.getElementById('headline');
-        const subhead = document.getElementById('subhead');
-        const clockEl = document.getElementById('clock');
-
-        // 1. Initialize Clock (Apple style sticky top)
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            clockEl.textContent = `${hours}:${minutes}`;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // 2. Light Sweep Animation
-        // Starts off-screen and sweeps across
-        function startSweep() {
-            sweep.style.animation = 'sweep 4s linear forwards';
-            
-            // After sweep passes, fade in elements
-            setTimeout(() => {
-                headline.style.animation = 'textFadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-            }, 800);
-
-            setTimeout(() => {
-                subhead.style.animation = 'textFadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s';
-                specs.style.animation = 'slideInLeft 0.6s ease-out forwards 0.6s';
-            }, 2000);
-        }
-
-        // Start animations on load
-        window.onload = () => {
-            startSweep();
-            createParticles();
-        };
-
-        // 3. Interactive Cursor Light (Glass effect)
-        document.addEventListener('mousemove', (e) => {
-            // Move cursor light
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-
-            // Move character slightly towards mouse (classic Apple ad logic)
-            const centerX = window.innerWidth / 2;
-            const moveX = (e.clientX - centerX) / 40;
-            
-            // Apply subtle translation to character container
-            character.style.transform = `translate(calc(-50% + ${moveX}px), -50%)`;
-        });
-
-        // 4. Create Floating Particles for "Fantasy Pixel" feel
-        function createParticles() {
-            const container = document.getElementById('app');
-            const particleCount = 20;
-
-            for(let i = 0; i < particleCount; i++) {
-                const p = document.createElement('div');
-                p.classList.add('particle');
-                
-                // Randomize appearance
-                const size = Math.random() * 4 + 1; // 1px to 5px
-                p.style.width = `${size}px`;
-                p.style.height = `${size}px`;
-                p.style.left = `${Math.random() * 100}vw`;
-                p.style.top = `${Math.random() * 100}vh`;
-                p.style.background = Math.random() > 0.5 ? '#cd7f32' : 'rgba(255,255,255,0.3)';
-                
-                container.appendChild(p);
-
-                // Animate
-                const duration = Math.random() * 10 + 5;
-                const delay = Math.random() * 5;
-                
-                p.animate([
-                    { transform: 'translate(0, 0) scale(0)', opacity: 0 },
-                    { transform: `translate(${Math.random()*100 - 50}px, ${Math.random()*-200 - 50}px) scale(1)`, opacity: 0.8, offset: 0.5 },
-                    { transform: `translate(${Math.random()*100 - 50}px, ${-Math.random()*200}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: duration * 1000,
-                    delay: delay * 1000,
-                    iterations: Infinity
-                });
-            }
-        }
-    </script>
+  </main>
 </body>
 </html>
