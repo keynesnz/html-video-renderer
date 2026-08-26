@@ -354,5 +354,40 @@
       <div class="footer">Ultra performance / 2026</div>
     </div>
   </main>
+  <style>
+/*
+ * During export, pause browser animations and manually position
+ * them using --render-time.
+ */
+html[data-rendering="true"] *,
+html[data-rendering="true"] *::before,
+html[data-rendering="true"] *::after {
+  animation-play-state: paused !important;
+  animation-delay: calc(var(--render-time, 0s) * -1) !important;
+  transition: none !important;
+}
+</style>
+
+<script>
+window.RENDER_DURATION = 15;
+
+window.seekToFrame = async function (frame, time, fps) {
+  document.documentElement.style.setProperty(
+    "--render-time",
+    `${time}s`
+  );
+
+  // Reset any JavaScript animation state here if you have one.
+  //
+  // Example:
+  // const progress = time / window.RENDER_DURATION;
+  // document.querySelector(".progress").style.width =
+  //   `${progress * 100}%`;
+
+  await new Promise(resolve => requestAnimationFrame(resolve));
+};
+</script>
+
+  
 </body>
 </html>
