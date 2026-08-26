@@ -1,514 +1,275 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Premium Video Ad</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Premium Lyrics</title>
 
   <style>
-    :root {
-      --text: #ffffff;
-      --blue: #b9ddff;
-    }
-
     * {
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
-      min-height: 100%;
-      background: #000;
-      color: var(--text);
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Display",
-        "Segoe UI",
-        sans-serif;
-    }
-
-    body {
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-    }
-
-    .ad {
-      position: relative;
-      width: min(100vw, 420px);
-      aspect-ratio: 6 / 19;
       min-height: 100vh;
-      max-height: 100vh;
       overflow: hidden;
-      isolation: isolate;
-      background: #111;
-    }
-
-    /* Video background */
-    .background-video {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-
-      /* Video dibuat lebih terang */
-      filter: brightness(1.05) contrast(1.02) saturate(1.05);
-
-      animation: videoZoom 14s ease-in-out infinite alternate;
-    }
-
-    /*
-      Overlay sangat tipis.
-      Fungsinya hanya membantu teks tetap terbaca.
-    */
-    .video-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(0, 0, 0, 0.12) 0%,
-          rgba(0, 0, 0, 0.02) 42%,
-          rgba(0, 0, 0, 0.3) 100%
-        ),
-        radial-gradient(
-          ellipse at center,
-          transparent 58%,
-          rgba(0, 0, 0, 0.2) 100%
-        );
-    }
-
-    /* Glow biru tipis */
-    .ad::before {
-      content: "";
-      position: absolute;
-      inset: -45%;
-      z-index: 2;
-      pointer-events: none;
-      background:
-        conic-gradient(
-          from 180deg,
-          transparent,
-          rgba(100, 190, 255, 0.08),
-          transparent 25%,
-          rgba(255, 255, 255, 0.06),
-          transparent 52%
-        );
-      filter: blur(75px);
-      mix-blend-mode: screen;
-      animation: atmosphere 12s ease-in-out infinite alternate;
-    }
-
-    /* Vignette ringan */
-    .ad::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 8;
-      pointer-events: none;
-      background: radial-gradient(
-        ellipse at center,
-        transparent 55%,
-        rgba(0, 0, 0, 0.2)
-      );
-    }
-
-    /* Efek film grain */
-    .noise {
-      position: absolute;
-      inset: 0;
-      z-index: 7;
-      opacity: 0.035;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.65'/%3E%3C/svg%3E");
-    }
-
-    .topbar {
-      position: absolute;
-      top: 5%;
-      left: 8%;
-      right: 8%;
-      z-index: 5;
 
       display: flex;
       align-items: center;
-      justify-content: space-between;
-
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-
-      animation: introText 1.5s ease both;
-    }
-
-    .logo {
-      color: #fff;
-      font-size: 18px;
-      letter-spacing: -0.08em;
-    }
-
-    .hero {
-      position: absolute;
-      inset: 16% 0 0;
-      z-index: 4;
-      display: grid;
-      place-items: center;
-    }
-
-    .headline {
-      position: absolute;
-      top: 7%;
-      z-index: 5;
-      width: 100%;
-      text-align: center;
-      animation: introText 1.8s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .eyebrow {
-      margin-bottom: 18px;
-      color: var(--blue);
-      font-size: 10px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      text-shadow: 0 2px 15px #000;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(42px, 14vw, 70px);
-      font-weight: 600;
-      line-height: 0.86;
-      letter-spacing: -0.075em;
-      text-shadow:
-        0 3px 25px rgba(0, 0, 0, 0.7),
-        0 0 40px rgba(0, 0, 0, 0.25);
-    }
-
-    h1 span {
-      display: block;
-    }
-
-    .product-stage {
-      position: relative;
-      width: 74%;
-      aspect-ratio: 0.62;
-      margin-top: 22%;
-      perspective: 900px;
-      animation: stageIn 2s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .halo {
-      position: absolute;
-      top: 26%;
-      left: 50%;
-      width: 115%;
-      aspect-ratio: 1;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: rgba(100, 178, 255, 0.2);
-      filter: blur(45px);
-      animation: pulse 4s ease-in-out infinite;
-    }
-
-    .device {
-      position: absolute;
-      top: 4%;
-      left: 50%;
-      width: 71%;
-      height: 72%;
-      transform: translateX(-50%) rotateY(-18deg) rotateZ(4deg);
-
-      border: 1px solid rgba(255, 255, 255, 0.65);
-      border-radius: 28px;
-
-      background:
-        linear-gradient(
-          115deg,
-          rgba(255, 255, 255, 0.4),
-          transparent 17% 65%,
-          rgba(255, 255, 255, 0.14)
-        ),
-        linear-gradient(135deg, #333940, #080909 55%, #454b54);
-
-      box-shadow:
-        -28px 30px 55px rgba(0, 0, 0, 0.9),
-        inset 8px 0 15px rgba(255, 255, 255, 0.12),
-        inset -8px 0 15px rgba(0, 0, 0, 0.7);
-
-      animation: float 5s ease-in-out 2s infinite;
-    }
-
-    .device::before {
-      content: "";
-      position: absolute;
-      inset: 8px;
-      border-radius: 21px;
+      justify-content: center;
 
       background:
         radial-gradient(
-          circle at 58% 32%,
-          rgba(124, 200, 255, 0.82),
-          transparent 2%
-        ),
-        radial-gradient(
-          circle at 50% 48%,
-          rgba(55, 123, 204, 0.6),
-          transparent 23%
-        ),
-        linear-gradient(150deg, #0a1623, #06101b 45%, #020304);
-
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-    }
-
-    .device::after {
-      content: "";
-      position: absolute;
-      top: 17px;
-      left: 50%;
-      width: 32%;
-      height: 8px;
-      transform: translateX(-50%);
-      border-radius: 20px;
-      background: #020303;
-    }
-
-    .shine {
-      position: absolute;
-      inset: -20% -80%;
-      z-index: 2;
-      transform: rotate(25deg) translateX(-100%);
-      background:
-        linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.42),
-          transparent
+          circle at 50% 50%,
+          #0b3d28 0%,
+          #061d13 35%,
+          #020806 75%,
+          #000 100%
         );
-      animation: shine 5s ease-in-out 2s infinite;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
     }
 
-    .orbit {
-      position: absolute;
-      top: 16%;
-      left: 50%;
-      width: 112%;
-      height: 55%;
-      transform: translateX(-50%) rotate(-25deg);
-      border: 1px solid rgba(145, 204, 255, 0.42);
-      border-radius: 50%;
-      animation: orbit 7s linear infinite;
-    }
-
-    .orbit::after {
+    /* Ambient green glow */
+    body::before {
       content: "";
-      position: absolute;
-      top: 0;
+      position: fixed;
+
+      width: 60vw;
+      height: 60vw;
+
+      top: 50%;
       left: 50%;
-      width: 7px;
-      height: 7px;
+
+      transform: translate(-50%, -50%);
+
+      background: #00ff8830;
+      filter: blur(150px);
       border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 22px 7px #8ecbff;
+
+      animation: ambient 7s ease-in-out infinite alternate;
     }
 
-    .specs {
-      position: absolute;
-      right: 0;
-      bottom: 1%;
-      left: 0;
+    .lyrics {
+      position: relative;
+      z-index: 2;
+
+      width: 90%;
+      max-width: 1100px;
+      min-height: 150px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
       text-align: center;
-      animation: introText 1.8s 1s cubic-bezier(.16, 1, .3, 1) both;
+
+      color: #f5fff9;
+
+      font-size: clamp(30px, 5vw, 70px);
+      font-weight: 300;
+
+      letter-spacing: -2px;
+      line-height: 1.2;
+
+      text-shadow:
+        0 0 20px #00ff8830,
+        0 0 50px #00ff8815;
     }
 
-    .specs p {
-      margin: 0 0 12px;
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 13px;
-      letter-spacing: 0.02em;
-      text-shadow: 0 2px 12px #000;
+    .line {
+      position: absolute;
+
+      width: 100%;
+
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      opacity: 0;
+      transition: opacity 0.6s ease;
     }
 
-    .cta {
+    .line.active {
+      opacity: 1;
+    }
+
+    .word {
       display: inline-block;
-      padding: 11px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 999px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(12px);
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+      opacity: 0;
+      filter: blur(8px);
+
+      transform:
+        translateY(18px)
+        scale(.97);
+
+      margin-right: 0.22em;
+
+      transition:
+        opacity 0.55s cubic-bezier(.22, .61, .36, 1),
+        transform 0.55s cubic-bezier(.22, .61, .36, 1),
+        filter 0.55s ease;
     }
 
-    @keyframes videoZoom {
+    .word.visible {
+      opacity: 1;
+
+      transform:
+        translateY(0)
+        scale(1);
+
+      filter: blur(0);
+    }
+
+    /* Ambient light */
+    @keyframes ambient {
       from {
-        transform: scale(1);
+        opacity: .4;
+        transform:
+          translate(-50%, -50%)
+          scale(.9);
       }
 
       to {
-        transform: scale(1.08);
+        opacity: .8;
+        transform:
+          translate(-50%, -50%)
+          scale(1.1);
       }
     }
 
-    @keyframes atmosphere {
-      from {
-        transform: rotate(0deg) scale(0.95);
-      }
-
-      to {
-        transform: rotate(100deg) scale(1.2);
-      }
-    }
-
-    @keyframes introText {
-      from {
-        opacity: 0;
-        transform: translateY(35px);
-        filter: blur(12px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-      }
-    }
-
-    @keyframes stageIn {
-      from {
-        opacity: 0;
-        transform: scale(0.75) translateY(100px);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-    }
-
-    @keyframes float {
-      0%,
-      100% {
-        margin-top: 0;
-      }
-
-      50% {
-        margin-top: -17px;
-      }
-    }
-
-    @keyframes pulse {
-      0%,
-      100% {
-        opacity: 0.42;
-        transform: translate(-50%, -50%) scale(0.92);
-      }
-
-      50% {
-        opacity: 0.85;
-        transform: translate(-50%, -50%) scale(1.12);
-      }
-    }
-
-    @keyframes shine {
-      0%,
-      35% {
-        transform: rotate(25deg) translateX(-100%);
-      }
-
-      70%,
-      100% {
-        transform: rotate(25deg) translateX(100%);
-      }
-    }
-
-    @keyframes orbit {
-      to {
-        transform: translateX(-50%) rotate(335deg);
-      }
-    }
-
-    @media (min-width: 600px) {
-      .ad {
-        min-height: 0;
-        height: 95vh;
-        border-radius: 22px;
-        box-shadow: 0 30px 100px #000;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
+    @media (max-width: 600px) {
+      .lyrics {
+        font-size: 30px;
+        letter-spacing: -1px;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="ad">
-    <video
-      class="background-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="auto"
-    >
-      <source
-        src="https://www.image2url.com/r2/default/videos/1787209515014-e1ac9719-bad6-420a-af1e-12833853916f.mp4"
-        type="video/mp4"
-      />
 
-      Browser Anda tidak mendukung HTML5 video.
-    </video>
+  <div class="lyrics">
 
-    <div class="video-overlay"></div>
-    <div class="noise"></div>
+    <div class="line">
+      <span class="word">So</span>
+      <span class="word">baby,</span>
+      <span class="word">don't</span>
+      <span class="word">worry,</span>
+    </div>
 
-    <header class="topbar">
-      <div class="logo">◉</div>
-      <div>Introducing</div>
-    </header>
+    <div class="line">
+      <span class="word">you</span>
+      <span class="word">are</span>
+      <span class="word">my</span>
+      <span class="word">only</span>
+    </div>
 
-    <section class="hero">
-      <div class="headline">
-        <div class="eyebrow">Beyond the ordinary</div>
+    <div class="line">
+      <span class="word">You</span>
+      <span class="word">won't</span>
+      <span class="word">be</span>
+      <span class="word">lonely</span>
+    </div>
 
-        <h1>
-          <span>Pure</span>
-          <span>motion.</span>
-        </h1>
-      </div>
+    <div class="line">
+      <span class="word">even</span>
+      <span class="word">if</span>
+      <span class="word">the</span>
+      <span class="word">sky</span>
+      <span class="word">is</span>
+      <span class="word">falling</span>
+      <span class="word">down</span>
+    </div>
 
-      <div class="product-stage">
-        <div class="halo"></div>
-        <div class="orbit"></div>
+  </div>
 
-        <div class="device">
-          <div class="shine"></div>
-        </div>
 
-        <div class="specs">
-          <p>Designed to disappear into your world.</p>
-          <span class="cta">Discover more</span>
-        </div>
-      </div>
-    </section>
-  </main>
+  <script>
+    const lines = document.querySelectorAll(".line");
+
+    // Kecepatan munculnya setiap kata
+    const WORD_DELAY = 175;
+
+    // Waktu setelah satu baris lengkap sebelum menghilang
+    const HOLD_TIME = 900;
+
+    // Durasi fade out
+    const FADE_OUT = 600;
+
+    // Jeda sebelum baris berikutnya
+    const GAP = 300;
+
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+
+    async function showLine(line) {
+
+      const words = line.querySelectorAll(".word");
+
+      // Reset semua kata terlebih dahulu
+      words.forEach(word => {
+        word.classList.remove("visible");
+      });
+
+      // Tampilkan baris
+      line.classList.add("active");
+
+      // Munculkan kata satu per satu
+      for (const word of words) {
+        await wait(WORD_DELAY);
+
+        word.classList.add("visible");
+      }
+
+      // Biarkan satu baris lengkap terlihat
+      await wait(HOLD_TIME);
+
+      // Hilangkan seluruh baris
+      line.classList.remove("active");
+
+      // Reset kata setelah fade out
+      await wait(FADE_OUT);
+
+      words.forEach(word => {
+        word.classList.remove("visible");
+      });
+
+      // Jeda kecil sebelum baris berikutnya
+      await wait(GAP);
+    }
+
+
+    async function playLyrics() {
+
+      while (true) {
+
+        // Selalu mulai dari baris pertama
+        for (const line of lines) {
+          await showLine(line);
+        }
+
+      }
+
+    }
+
+
+    // Mulai animasi
+    playLyrics();
+  </script>
+
 </body>
 </html>
