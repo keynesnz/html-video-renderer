@@ -1,395 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Premium Product Animation</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Premium Product Animation</title>
 
-  <style>
-    :root {
-      --bg: #050506;
-      --text: #f5f5f7;
-      --muted: #8e8e93;
-      --blue: #2997ff;
-      --purple: #bf5af2;
-      --cyan: #64d2ff;
-    }
+<style>
+  :root {
+    --bg: #050505;
+    --text: #f5f5f7;
+    --muted: #8d8d93;
+    --blue: #9ccaff;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      overflow: hidden;
-      color: var(--text);
-      background: var(--bg);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-        "Helvetica Neue", Arial, sans-serif;
-    }
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: #000;
+    color: var(--text);
+    font-family:
+      Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+      "Segoe UI", sans-serif;
+  }
 
-    .scene {
-      position: relative;
-      min-height: 100vh;
-      isolation: isolate;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at 50% 40%, rgba(80, 80, 110, .16), transparent 28%),
-        radial-gradient(circle at 20% 90%, rgba(41, 151, 255, .11), transparent 32%),
-        linear-gradient(120deg, #030304, #0a0a0d 45%, #020203);
-    }
+  body {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
 
-    /* Soft cinematic light leaks */
-    .light {
-      position: absolute;
-      width: 45vw;
-      height: 45vw;
-      border-radius: 50%;
-      filter: blur(90px);
-      opacity: .22;
-      pointer-events: none;
-      z-index: -1;
-      animation: drift 16s ease-in-out infinite alternate;
-    }
+  .ad {
+    position: relative;
+    width: min(100vw, 420px);
+    aspect-ratio: 6 / 19;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      radial-gradient(
+        ellipse at 50% 35%,
+        rgba(40, 80, 120, 0.24),
+        transparent 42%
+      ),
+      linear-gradient(180deg, #101114 0%, #050505 58%, #000 100%);
+  }
 
-    .light.one {
-      top: -18vw;
-      left: -10vw;
-      background: var(--blue);
-    }
-
-    .light.two {
-      right: -17vw;
-      bottom: -20vw;
-      background: var(--purple);
-      animation-delay: -6s;
-    }
-
-    .light.three {
-      top: 30%;
-      left: 40%;
-      width: 18vw;
-      height: 18vw;
-      background: var(--cyan);
-      opacity: .1;
-      animation-delay: -10s;
-    }
-
-    .content {
-      position: relative;
-      z-index: 2;
-      width: min(1100px, 90vw);
-      text-align: center;
-      transform: translateY(-3vh);
-    }
-
-    .eyebrow {
-      margin-bottom: 22px;
-      color: #b7b7bd;
-      font-size: 12px;
-      letter-spacing: .28em;
-      text-transform: uppercase;
-      opacity: 0;
-      animation: reveal .9s .15s cubic-bezier(.2,.8,.2,1) forwards;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(52px, 10vw, 150px);
-      line-height: .88;
-      letter-spacing: -.09em;
-      font-weight: 700;
-      background: linear-gradient(
-        110deg,
-        #fff 15%,
-        #a8cfff 42%,
-        #fff 55%,
-        #c9a6ff 80%
-      );
-      background-size: 220% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation:
-        reveal 1s .3s cubic-bezier(.2,.8,.2,1) forwards,
-        shine 7s 1.3s linear infinite;
-      opacity: 0;
-    }
-
-    .subtitle {
-      max-width: 470px;
-      margin: 28px auto 0;
-      color: var(--muted);
-      font-size: clamp(16px, 2vw, 21px);
-      line-height: 1.5;
-      opacity: 0;
-      animation: reveal .9s .55s cubic-bezier(.2,.8,.2,1) forwards;
-    }
-
-    .button {
-      display: inline-flex;
-      margin-top: 34px;
-      padding: 14px 24px;
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      border: 1px solid rgba(255,255,255,.22);
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      box-shadow:
-        inset 0 1px rgba(255,255,255,.17),
-        0 12px 35px rgba(0,0,0,.3);
-      backdrop-filter: blur(14px);
-      opacity: 0;
-      animation: reveal .9s .75s cubic-bezier(.2,.8,.2,1) forwards;
-      transition: .35s ease;
-    }
-
-    .button:hover {
-      transform: translateY(-3px) scale(1.04);
-      background: rgba(255,255,255,.16);
-      box-shadow: 0 18px 45px rgba(41,151,255,.2);
-    }
-
-    /* Product */
-    .product-wrap {
-      position: absolute;
-      z-index: 1;
-      left: 50%;
-      bottom: -15vh;
-      width: min(440px, 65vw);
-      aspect-ratio: 1 / 1.45;
-      transform: translateX(-50%) perspective(1000px) rotateX(58deg) rotateZ(-18deg);
-      animation: productIn 1.8s .2s cubic-bezier(.16,1,.3,1) forwards,
-                 hover 7s 2s ease-in-out infinite;
-      filter: drop-shadow(0 50px 45px rgba(0,0,0,.7));
-    }
-
-    .product {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      border-radius: 42px;
-      border: 1px solid rgba(255,255,255,.6);
-      background:
-        radial-gradient(circle at 25% 15%, rgba(255,255,255,.95), transparent 4%),
-        radial-gradient(circle at 70% 10%, rgba(100,210,255,.8), transparent 22%),
-        radial-gradient(circle at 25% 80%, rgba(191,90,242,.85), transparent 32%),
-        linear-gradient(135deg, #d9e8ff, #4778db 42%, #17152d 78%, #09090e);
-      box-shadow:
-        inset 8px 8px 20px rgba(255,255,255,.28),
-        inset -12px -15px 30px rgba(0,0,0,.5);
-    }
-
-    .product::before {
-      content: "";
-      position: absolute;
-      inset: 8px;
-      border-radius: 35px;
-      border: 1px solid rgba(255,255,255,.25);
-    }
-
-    .product::after {
-      content: "";
-      position: absolute;
-      width: 170%;
-      height: 18%;
-      left: -35%;
-      top: 38%;
-      transform: rotate(-25deg);
-      background: linear-gradient(
-        90deg,
+  /* Animated atmospheric glow */
+  .ad::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    z-index: -2;
+    background:
+      conic-gradient(
+        from 180deg,
         transparent,
-        rgba(255,255,255,.65),
-        transparent
+        rgba(110, 183, 255, 0.16),
+        transparent 25%,
+        rgba(255, 255, 255, 0.1),
+        transparent 52%
       );
-      filter: blur(18px);
-      animation: sweep 5s 2s ease-in-out infinite;
+    filter: blur(70px);
+    animation: atmosphere 12s ease-in-out infinite alternate;
+  }
+
+  .ad::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 45%,
+      rgba(0, 0, 0, 0.54)
+    );
+  }
+
+  .noise {
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    opacity: 0.035;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  }
+
+  .topbar {
+    position: absolute;
+    top: 5%;
+    left: 8%;
+    right: 8%;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .logo {
+    color: white;
+    font-size: 18px;
+    letter-spacing: -0.08em;
+  }
+
+  .hero {
+    position: absolute;
+    inset: 16% 0 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .headline {
+    position: absolute;
+    top: 8%;
+    z-index: 4;
+    width: 100%;
+    text-align: center;
+    animation: introText 1.8s cubic-bezier(.16, 1, .3, 1) both;
+  }
+
+  .eyebrow {
+    margin-bottom: 18px;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(42px, 14vw, 70px);
+    line-height: 0.86;
+    letter-spacing: -0.075em;
+    font-weight: 600;
+  }
+
+  h1 span {
+    display: block;
+  }
+
+  .product-stage {
+    position: relative;
+    width: 74%;
+    aspect-ratio: 0.62;
+    margin-top: 22%;
+    perspective: 900px;
+    animation: stageIn 2s cubic-bezier(.16, 1, .3, 1) both;
+  }
+
+  .halo {
+    position: absolute;
+    top: 26%;
+    left: 50%;
+    width: 115%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(100, 178, 255, 0.17);
+    filter: blur(45px);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  .device {
+    position: absolute;
+    top: 4%;
+    left: 50%;
+    width: 71%;
+    height: 72%;
+    transform: translateX(-50%) rotateY(-18deg) rotateZ(4deg);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 28px;
+    background:
+      linear-gradient(
+        115deg,
+        rgba(255,255,255,.35),
+        transparent 17% 65%,
+        rgba(255,255,255,.12)
+      ),
+      linear-gradient(135deg, #24272c, #070809 55%, #353941);
+    box-shadow:
+      -28px 30px 55px rgba(0, 0, 0, 0.9),
+      inset 8px 0 15px rgba(255, 255, 255, 0.1),
+      inset -8px 0 15px rgba(0, 0, 0, 0.7);
+    animation: float 5s ease-in-out 2s infinite;
+  }
+
+  .device::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 21px;
+    background:
+      radial-gradient(circle at 58% 32%, rgba(124, 200, 255, .82), transparent 2%),
+      radial-gradient(circle at 50% 48%, rgba(55, 123, 204, .6), transparent 23%),
+      linear-gradient(150deg, #0a1623, #06101b 45%, #020304);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+  }
+
+  .device::after {
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: 50%;
+    width: 32%;
+    height: 8px;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    background: #020303;
+  }
+
+  .shine {
+    position: absolute;
+    inset: -20% -80%;
+    z-index: 2;
+    transform: rotate(25deg) translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.34),
+      transparent
+    );
+    animation: shine 5s ease-in-out 2s infinite;
+  }
+
+  .orbit {
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    width: 112%;
+    height: 55%;
+    transform: translateX(-50%) rotate(-25deg);
+    border: 1px solid rgba(145, 204, 255, 0.3);
+    border-radius: 50%;
+    animation: orbit 7s linear infinite;
+  }
+
+  .orbit::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 22px 7px #8ecbff;
+  }
+
+  .specs {
+    position: absolute;
+    bottom: 1%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    animation: introText 1.8s 1s cubic-bezier(.16, 1, .3, 1) both;
+  }
+
+  .specs p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .cta {
+    display: inline-block;
+    padding: 11px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: white;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  @keyframes atmosphere {
+    to {
+      transform: rotate(100deg) scale(1.2);
     }
+  }
 
-    .camera {
-      position: absolute;
-      top: 11%;
-      left: 9%;
-      width: 25%;
-      aspect-ratio: 1;
-      border-radius: 28%;
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.3);
-      box-shadow: inset 3px 3px 8px rgba(255,255,255,.15);
+  @keyframes introText {
+    from {
+      opacity: 0;
+      transform: translateY(35px);
+      filter: blur(12px);
     }
-
-    .lens {
-      position: absolute;
-      width: 34%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 35% 30%, #fff, #5a8bff 9%, #111 35%, #000 68%);
-      border: 2px solid #111;
-      box-shadow: 0 2px 8px #000;
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
     }
+  }
 
-    .lens:nth-child(1) { top: 16%; left: 17%; }
-    .lens:nth-child(2) { top: 55%; left: 17%; }
-    .lens:nth-child(3) { top: 35%; left: 55%; }
-
-    .reflection {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        120deg,
-        transparent 30%,
-        rgba(255,255,255,.2) 48%,
-        transparent 60%
-      );
-      transform: translateX(-100%);
-      animation: reflection 6s 2.5s ease-in-out infinite;
+  @keyframes stageIn {
+    from {
+      opacity: 0;
+      transform: scale(.75) translateY(100px);
     }
-
-    .floor-glow {
-      position: absolute;
-      bottom: -4vh;
-      left: 50%;
-      width: min(600px, 90vw);
-      height: 90px;
-      transform: translateX(-50%);
-      border-radius: 50%;
-      background: #317dff;
-      filter: blur(70px);
-      opacity: .25;
-      animation: pulse 4s ease-in-out infinite;
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
+  }
 
-    .scroll {
-      position: absolute;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #777780;
-      font-size: 10px;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      animation: scrollHint 2.5s ease-in-out infinite;
+  @keyframes float {
+    0%, 100% {
+      margin-top: 0;
     }
-
-    @keyframes reveal {
-      from {
-        opacity: 0;
-        transform: translateY(35px);
-        filter: blur(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-      }
+    50% {
+      margin-top: -17px;
     }
+  }
 
-    @keyframes productIn {
-      from {
-        opacity: 0;
-        transform: translate(-50%, 35vh) perspective(1000px)
-          rotateX(58deg) rotateZ(-18deg) scale(.75);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, 0) perspective(1000px)
-          rotateX(58deg) rotateZ(-18deg) scale(1);
-      }
+  @keyframes pulse {
+    0%, 100% {
+      opacity: .42;
+      transform: translate(-50%, -50%) scale(.92);
     }
-
-    @keyframes hover {
-      0%, 100% { margin-bottom: 0; }
-      50% { margin-bottom: 22px; }
+    50% {
+      opacity: .85;
+      transform: translate(-50%, -50%) scale(1.12);
     }
+  }
 
-    @keyframes shine {
-      to { background-position: 220% center; }
+  @keyframes shine {
+    0%, 35% {
+      transform: rotate(25deg) translateX(-100%);
     }
-
-    @keyframes sweep {
-      0%, 45% { transform: translateX(-80%) rotate(-25deg); }
-      70%, 100% { transform: translateX(80%) rotate(-25deg); }
+    70%, 100% {
+      transform: rotate(25deg) translateX(100%);
     }
+  }
 
-    @keyframes reflection {
-      0%, 35% { transform: translateX(-100%); }
-      70%, 100% { transform: translateX(100%); }
+  @keyframes orbit {
+    to {
+      transform: translateX(-50%) rotate(335deg);
     }
+  }
 
-    @keyframes drift {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(6vw, 4vh) scale(1.18); }
+  @media (min-width: 600px) {
+    .ad {
+      min-height: 0;
+      height: 95vh;
+      border-radius: 22px;
+      box-shadow: 0 30px 100px #000;
     }
+  }
 
-    @keyframes pulse {
-      0%, 100% { opacity: .18; transform: translateX(-50%) scaleX(.8); }
-      50% { opacity: .35; transform: translateX(-50%) scaleX(1.1); }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
     }
-
-    @keyframes scrollHint {
-      0%, 100% { opacity: .35; transform: translate(-50%, 0); }
-      50% { opacity: .9; transform: translate(-50%, -6px); }
-    }
-
-    @media (max-width: 600px) {
-      .product-wrap {
-        bottom: -7vh;
-        width: 68vw;
-      }
-
-      .content {
-        transform: translateY(-13vh);
-      }
-
-      .subtitle {
-        max-width: 320px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
-  <main class="scene">
-    <div class="light one"></div>
-    <div class="light two"></div>
-    <div class="light three"></div>
+  <main class="ad">
+    <div class="noise"></div>
 
-    <section class="content">
-      <div class="eyebrow">Designed for wonder</div>
-      <h1>Beyond<br>beautiful.</h1>
-      <p class="subtitle">
-        A cinematic product moment built with nothing but HTML and CSS.
-      </p>
-      <a class="button" href="#explore">Explore the experience</a>
-    </section>
+    <header class="topbar">
+      <div class="logo">◉</div>
+      <div>Introducing</div>
+    </header>
 
-    <div class="product-wrap" aria-label="Abstract premium smartphone">
-      <div class="product">
-        <div class="camera">
-          <div class="lens"></div>
-          <div class="lens"></div>
-          <div class="lens"></div>
-        </div>
-        <div class="reflection"></div>
+    <section class="hero">
+      <div class="headline">
+        <div class="eyebrow">Beyond the ordinary</div>
+        <h1>
+          <span>Pure</span>
+          <span>motion.</span>
+        </h1>
       </div>
-    </div>
 
-    <div class="floor-glow"></div>
-    <div class="scroll">Scroll to explore</div>
+      <div class="product-stage">
+        <div class="halo"></div>
+        <div class="orbit"></div>
+
+        <div class="device">
+          <div class="shine"></div>
+        </div>
+
+        <div class="specs">
+          <p>Designed to disappear into your world.</p>
+          <span class="cta">Discover more</span>
+        </div>
+      </div>
+    </section>
   </main>
 </body>
 </html>
