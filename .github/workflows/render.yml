@@ -1,0 +1,196 @@
+name: Render MP4
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      # --------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # NODE.JS
+      # --------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # --------------------------------------------------
+      # INSTALL FFMPEG
+      # --------------------------------------------------
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+          echo "FFmpeg version:"
+          ffmpeg -version
+
+      # --------------------------------------------------
+      # CHECK PROJECT FILES
+      # --------------------------------------------------
+      - name: Check project files
+        run: |
+          echo "Repository files:"
+          find . -maxdepth 2 -type f | sort
+
+          if [ ! -f source.html ]; then
+            echo "::error::source.html was not found"
+            exit 1
+          fi
+
+          if [ ! -f render.js ]; then
+            echo "::error::render.js was not found"
+            exit 1
+          fi
+
+          if [ ! -f index.html ]; then
+            echo "::error::index.html was not found"
+            exit 1
+          fi
+
+      # --------------------------------------------------
+      # INSTALL NODE DEPENDENCIES
+      # --------------------------------------------------
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      # --------------------------------------------------
+      # INSTALL PUPPETEER CHROMIUM
+      # --------------------------------------------------
+      - name: Install Puppeteer Chromium
+        run: |
+          npx puppeteer browsers install chrome
+
+      # --------------------------------------------------
+      # CHECK PUPPETEER
+      # --------------------------------------------------
+      - name: Check Puppeteer
+        run: |
+          node - <<'NODE'
+          const puppeteer = require("puppeteer");
+
+          console.log("Puppeteer loaded successfully");
+          console.log("Chromium executable:");
+          console.log(puppeteer.executablePath());
+          NODE
+
+      # --------------------------------------------------
+      # CREATE VIDEO FILENAME
+      #
+      # Kansas City / Central Time
+      # Example:
+      # August-26-2026_12-30-45.mp4
+      # --------------------------------------------------
+      - name: Create video filename
+        run: |
+          VIDEO_NAME="$(
+            TZ=America/Chicago date '+%B-%d-%Y_%H-%M-%S'
+          ).mp4"
+
+          echo "VIDEO_NAME=$VIDEO_NAME" >> "$GITHUB_ENV"
+
+          echo "Video filename:"
+          echo "$VIDEO_NAME"
+
+      # --------------------------------------------------
+      # RENDER MP4
+      # --------------------------------------------------
+      - name: Render MP4
+        env:
+          INPUT: source.html
+          OUTPUT: ${{ env.VIDEO_NAME }}
+        run: |
+          node render.js
+
+      # --------------------------------------------------
+      # CHECK OUTPUT
+      # --------------------------------------------------
+      - name: Check MP4
+        run: |
+          if [ ! -f "$VIDEO_NAME" ]; then
+            echo "::error::MP4 was not created"
+            exit 1
+          fi
+
+          FILE_SIZE=$(stat -c%s "$VIDEO_NAME")
+
+          if [ "$FILE_SIZE" -le 0 ]; then
+            echo "::error::MP4 is empty"
+            exit 1
+          fi
+
+          echo "MP4 created successfully:"
+          ls -lh "$VIDEO_NAME"
+
+          echo ""
+          echo "Video information:"
+          ffprobe \
+            -v error \
+            -show_entries \
+            "format=duration,size:stream=width,height,r_frame_rate,codec_name,pix_fmt" \
+            -of default=noprint_wrappers=1 \
+            "$VIDEO_NAME"
+
+      # --------------------------------------------------
+      # PREPARE GITHUB PAGES
+      # --------------------------------------------------
+      - name: Prepare Pages
+        run: |
+          rm -rf pages
+          mkdir -p pages/videos
+
+          # Copy the existing dashboard.
+          cp index.html pages/index.html
+
+          # Copy the rendered video.
+          cp "$VIDEO_NAME" "pages/videos/$VIDEO_NAME"
+
+          # Store the newest filename for the dashboard.
+          printf '%s\n' "$VIDEO_NAME" > pages/videos/latest.txt
+
+          echo "Pages contents:"
+          find pages -maxdepth 3 -type f -printf '%p\n'
+
+      # --------------------------------------------------
+      # CONFIGURE GITHUB PAGES
+      # --------------------------------------------------
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # --------------------------------------------------
+      # UPLOAD PAGES ARTIFACT
+      # --------------------------------------------------
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+
+      # --------------------------------------------------
+      # DEPLOY
+      # --------------------------------------------------
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
