@@ -6,6 +6,6 @@
     "render": "node render.js"
   },
   "dependencies": {
-    "puppeteer": "^24.15.0"
+    "playwright": "^1.52.0"
   }
 }
