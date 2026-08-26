@@ -9,7 +9,16 @@ const OUTPUT_VIDEO = path.resolve(__dirname, "output.mp4");
 const FPS = 30;
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const DURATION = 15;
+
+// Maksimum video yang dihasilkan.
+// Video akan berhenti pada durasi ini walaupun HTML lebih panjang.
+const MAX_DURATION = 15;
+
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
 
 function waitForDrain(stream) {
   return new Promise((resolve, reject) => {
@@ -33,16 +42,81 @@ function waitForProcess(process) {
         resolve();
       } else {
         reject(
-          new Error(`ffmpeg exited with code ${code}\n\n${stderr}`)
+          new Error(
+            `FFmpeg exited with code ${code}\n${stderr}`
+          )
         );
       }
     });
   });
 }
 
+async function detectHtmlDuration(page) {
+  const duration = await page.evaluate(() => {
+    const durations = [];
+
+    for (const element of document.querySelectorAll("*")) {
+      const style = getComputedStyle(element);
+
+      // CSS animation-duration
+      for (const value of style.animationDuration.split(",")) {
+        const seconds = parseFloat(value);
+
+        if (value.trim().endsWith("ms")) {
+          durations.push(seconds / 1000);
+        } else if (value.trim().endsWith("s")) {
+          durations.push(seconds);
+        }
+      }
+
+      // CSS transition-duration
+      for (const value of style.transitionDuration.split(",")) {
+        const seconds = parseFloat(value);
+
+        if (value.trim().endsWith("ms")) {
+          durations.push(seconds / 1000);
+        } else if (value.trim().endsWith("s")) {
+          durations.push(seconds);
+        }
+      }
+    }
+
+    // Web Animations API
+    if (document.getAnimations) {
+      for (const animation of document.getAnimations()) {
+        const timing = animation.effect?.getComputedTiming();
+
+        if (timing?.duration && timing.duration !== "auto") {
+          durations.push(Number(timing.duration) / 1000);
+        }
+
+        if (
+          timing?.delay &&
+          timing?.duration &&
+          timing.duration !== "auto"
+        ) {
+          durations.push(
+            (Number(timing.delay) + Number(timing.duration)) / 1000
+          );
+        }
+      }
+    }
+
+    const validDurations = durations.filter(
+      value => Number.isFinite(value) && value > 0
+    );
+
+    return validDurations.length > 0
+      ? Math.max(...validDurations)
+      : null;
+  });
+
+  return duration;
+}
+
 async function main() {
   if (!fs.existsSync(INPUT_HTML)) {
-    throw new Error(`Input file not found: ${INPUT_HTML}`);
+    throw new Error(`HTML file not found: ${INPUT_HTML}`);
   }
 
   const browser = await chromium.launch({
@@ -62,28 +136,20 @@ async function main() {
   });
 
   page.on("pageerror", error => {
-    console.error("[page error]", error);
+    console.error(`[browser error] ${error.message}`);
   });
 
   await page.goto(`file://${INPUT_HTML}`, {
     waitUntil: "networkidle"
   });
 
-  // Tell the page that it is being rendered frame-by-frame.
-  await page.evaluate(() => {
-    document.documentElement.setAttribute("data-rendering", "true");
-  });
-
-  // Wait for fonts, images, and layout to finish.
   await page.evaluate(async () => {
-    if (document.fonts && document.fonts.ready) {
+    if (document.fonts?.ready) {
       await document.fonts.ready;
     }
 
-    const images = Array.from(document.images);
-
     await Promise.all(
-      images.map(image => {
+      Array.from(document.images).map(image => {
         if (image.complete) {
           return Promise.resolve();
         }
@@ -96,31 +162,64 @@ async function main() {
     );
   });
 
+  const detectedDuration = await detectHtmlDuration(page);
+
+  /*
+   * Use the detected HTML duration.
+   * Limit it to the first 15 seconds.
+   *
+   * If no CSS/Web Animation duration is found,
+   * use MAX_DURATION as a fallback.
+   */
+  const duration = Math.min(
+    detectedDuration || MAX_DURATION,
+    MAX_DURATION
+  );
+
+  const totalFrames = Math.ceil(duration * FPS);
+  const frameDuration = 1000 / FPS;
+
+  console.log(
+    `Detected HTML duration: ${
+      detectedDuration || "unknown"
+    } seconds`
+  );
+
+  console.log(
+    `Rendering first ${duration} seconds at ${FPS} FPS`
+  );
+
   const ffmpeg = spawn("ffmpeg", [
     "-hide_banner",
     "-loglevel",
     "error",
 
-    // The input consists of consecutive PNG screenshots.
     "-f",
     "image2pipe",
+
     "-vcodec",
     "png",
+
     "-framerate",
     String(FPS),
+
     "-i",
     "pipe:0",
 
-    // Encode as a broadly compatible H.264 MP4.
     "-an",
+
     "-c:v",
     "libx264",
+
     "-preset",
     "medium",
+
     "-crf",
     "18",
+
     "-pix_fmt",
     "yuv420p",
+
     "-movflags",
     "+faststart",
 
@@ -128,33 +227,46 @@ async function main() {
     OUTPUT_VIDEO
   ]);
 
-  const totalFrames = Math.ceil(DURATION * FPS);
-
-  console.log(
-    `Rendering ${totalFrames} frames at ${FPS} FPS...`
-  );
+  // Start the real-time clock after the page is ready.
+  const startTime = Date.now();
 
   for (let frame = 0; frame < totalFrames; frame++) {
-    const time = frame / FPS;
+    const scheduledTime =
+      startTime + frame * frameDuration;
 
-    // Move the HTML animation to the exact video timestamp.
-    await page.evaluate(async ({ frame, time, fps }) => {
-      if (typeof window.seekToFrame === "function") {
-        await window.seekToFrame(frame, time, fps);
-      } else {
-        document.documentElement.style.setProperty(
-          "--render-time",
-          `${time}s`
-        );
-      }
+    const waitTime = scheduledTime - Date.now();
 
-      // Allow the browser to apply styles and paint the frame.
-      await new Promise(resolve => {
+    if (waitTime > 0) {
+      await sleep(waitTime);
+    }
+
+    const elapsedTime =
+      (Date.now() - startTime) / 1000;
+
+    // Make the real elapsed time available to the HTML.
+    await page.evaluate(time => {
+      document.documentElement.style.setProperty(
+        "--elapsed-time",
+        `${time}s`
+      );
+
+      window.dispatchEvent(
+        new CustomEvent("render-time", {
+          detail: {
+            time
+          }
+        })
+      );
+    }, elapsedTime);
+
+    // Wait for the browser to paint the animation.
+    await page.evaluate(() => {
+      return new Promise(resolve => {
         requestAnimationFrame(() => {
           requestAnimationFrame(resolve);
         });
       });
-    }, { frame, time, fps: FPS });
+    });
 
     const screenshot = await page.screenshot({
       type: "png"
@@ -166,7 +278,7 @@ async function main() {
 
     if (frame % FPS === 0) {
       console.log(
-        `Rendered ${frame}/${totalFrames} frames`
+        `Frame ${frame}/${totalFrames}`
       );
     }
   }
@@ -174,9 +286,18 @@ async function main() {
   ffmpeg.stdin.end();
 
   await waitForProcess(ffmpeg);
+
   await browser.close();
 
-  console.log(`Finished: ${OUTPUT_VIDEO}`);
+  if (!fs.existsSync(OUTPUT_VIDEO)) {
+    throw new Error("Video was not created");
+  }
+
+  if (fs.statSync(OUTPUT_VIDEO).size === 0) {
+    throw new Error("Video file is empty");
+  }
+
+  console.log(`Video created: ${OUTPUT_VIDEO}`);
 }
 
 main().catch(error => {
