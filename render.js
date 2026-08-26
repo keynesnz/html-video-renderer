@@ -190,6 +190,8 @@ async function main() {
     "-i",
     webmPath,
 
+    "-vf", "fps=60",
+    
     "-t",
     String(MAX_DURATION_SECONDS),
 
