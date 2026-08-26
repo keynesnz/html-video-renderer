@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,9 +7,8 @@
 
   <style>
     :root {
-      --text: #f5f5f7;
-      --muted: #a5a5ab;
-      --blue: #a9d5ff;
+      --text: #ffffff;
+      --blue: #b9ddff;
     }
 
     * {
@@ -45,8 +44,7 @@
       max-height: 100vh;
       overflow: hidden;
       isolation: isolate;
-      background: #050505;
-      border-radius: 0;
+      background: #111;
     }
 
     /* Video background */
@@ -58,11 +56,17 @@
       height: 100%;
       object-fit: cover;
       object-position: center center;
-      filter: brightness(0.58) saturate(0.85);
+
+      /* Video dibuat lebih terang */
+      filter: brightness(1.05) contrast(1.02) saturate(1.05);
+
       animation: videoZoom 14s ease-in-out infinite alternate;
     }
 
-    /* Dark cinematic overlay */
+    /*
+      Overlay sangat tipis.
+      Fungsinya hanya membantu teks tetap terbaca.
+    */
     .video-overlay {
       position: absolute;
       inset: 0;
@@ -71,19 +75,18 @@
       background:
         linear-gradient(
           180deg,
-          rgba(0, 0, 0, 0.48) 0%,
-          rgba(0, 0, 0, 0.08) 38%,
-          rgba(0, 0, 0, 0.2) 55%,
-          rgba(0, 0, 0, 0.88) 100%
+          rgba(0, 0, 0, 0.12) 0%,
+          rgba(0, 0, 0, 0.02) 42%,
+          rgba(0, 0, 0, 0.3) 100%
         ),
         radial-gradient(
           ellipse at center,
-          transparent 25%,
-          rgba(0, 0, 0, 0.62) 100%
+          transparent 58%,
+          rgba(0, 0, 0, 0.2) 100%
         );
     }
 
-    /* Subtle moving color glow */
+    /* Glow biru tipis */
     .ad::before {
       content: "";
       position: absolute;
@@ -94,9 +97,9 @@
         conic-gradient(
           from 180deg,
           transparent,
-          rgba(100, 190, 255, 0.12),
+          rgba(100, 190, 255, 0.08),
           transparent 25%,
-          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.06),
           transparent 52%
         );
       filter: blur(75px);
@@ -104,7 +107,7 @@
       animation: atmosphere 12s ease-in-out infinite alternate;
     }
 
-    /* Vignette */
+    /* Vignette ringan */
     .ad::after {
       content: "";
       position: absolute;
@@ -113,17 +116,17 @@
       pointer-events: none;
       background: radial-gradient(
         ellipse at center,
-        transparent 42%,
-        rgba(0, 0, 0, 0.58)
+        transparent 55%,
+        rgba(0, 0, 0, 0.2)
       );
     }
 
-    /* Film grain */
+    /* Efek film grain */
     .noise {
       position: absolute;
       inset: 0;
       z-index: 7;
-      opacity: 0.045;
+      opacity: 0.035;
       pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.65'/%3E%3C/svg%3E");
     }
@@ -134,13 +137,16 @@
       left: 8%;
       right: 8%;
       z-index: 5;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
+
+      color: rgba(255, 255, 255, 0.85);
       font-size: 10px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
+
       animation: introText 1.5s ease both;
     }
 
@@ -161,8 +167,8 @@
     .headline {
       position: absolute;
       top: 7%;
-      width: 100%;
       z-index: 5;
+      width: 100%;
       text-align: center;
       animation: introText 1.8s cubic-bezier(.16, 1, .3, 1) both;
     }
@@ -173,6 +179,7 @@
       font-size: 10px;
       letter-spacing: 0.32em;
       text-transform: uppercase;
+      text-shadow: 0 2px 15px #000;
     }
 
     h1 {
@@ -181,7 +188,9 @@
       font-weight: 600;
       line-height: 0.86;
       letter-spacing: -0.075em;
-      text-shadow: 0 3px 30px rgba(0, 0, 0, 0.5);
+      text-shadow:
+        0 3px 25px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(0, 0, 0, 0.25);
     }
 
     h1 span {
@@ -217,20 +226,24 @@
       width: 71%;
       height: 72%;
       transform: translateX(-50%) rotateY(-18deg) rotateZ(4deg);
-      border: 1px solid rgba(255, 255, 255, 0.55);
+
+      border: 1px solid rgba(255, 255, 255, 0.65);
       border-radius: 28px;
+
       background:
         linear-gradient(
           115deg,
-          rgba(255, 255, 255, 0.35),
+          rgba(255, 255, 255, 0.4),
           transparent 17% 65%,
-          rgba(255, 255, 255, 0.12)
+          rgba(255, 255, 255, 0.14)
         ),
-        linear-gradient(135deg, #24272c, #070809 55%, #353941);
+        linear-gradient(135deg, #333940, #080909 55%, #454b54);
+
       box-shadow:
         -28px 30px 55px rgba(0, 0, 0, 0.9),
-        inset 8px 0 15px rgba(255, 255, 255, 0.1),
+        inset 8px 0 15px rgba(255, 255, 255, 0.12),
         inset -8px 0 15px rgba(0, 0, 0, 0.7);
+
       animation: float 5s ease-in-out 2s infinite;
     }
 
@@ -239,6 +252,7 @@
       position: absolute;
       inset: 8px;
       border-radius: 21px;
+
       background:
         radial-gradient(
           circle at 58% 32%,
@@ -251,7 +265,9 @@
           transparent 23%
         ),
         linear-gradient(150deg, #0a1623, #06101b 45%, #020304);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.18);
     }
 
     .device::after {
@@ -271,12 +287,13 @@
       inset: -20% -80%;
       z-index: 2;
       transform: rotate(25deg) translateX(-100%);
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.38),
-        transparent
-      );
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.42),
+          transparent
+        );
       animation: shine 5s ease-in-out 2s infinite;
     }
 
@@ -287,7 +304,7 @@
       width: 112%;
       height: 55%;
       transform: translateX(-50%) rotate(-25deg);
-      border: 1px solid rgba(145, 204, 255, 0.36);
+      border: 1px solid rgba(145, 204, 255, 0.42);
       border-radius: 50%;
       animation: orbit 7s linear infinite;
     }
@@ -315,28 +332,31 @@
 
     .specs p {
       margin: 0 0 12px;
-      color: rgba(255, 255, 255, 0.78);
+      color: rgba(255, 255, 255, 0.9);
       font-size: 13px;
       letter-spacing: 0.02em;
+      text-shadow: 0 2px 12px #000;
     }
 
     .cta {
       display: inline-block;
       padding: 11px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 999px;
       color: #fff;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.14);
       backdrop-filter: blur(12px);
       font-size: 10px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     @keyframes videoZoom {
       from {
         transform: scale(1);
       }
+
       to {
         transform: scale(1.08);
       }
@@ -346,6 +366,7 @@
       from {
         transform: rotate(0deg) scale(0.95);
       }
+
       to {
         transform: rotate(100deg) scale(1.2);
       }
@@ -357,6 +378,7 @@
         transform: translateY(35px);
         filter: blur(12px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -369,6 +391,7 @@
         opacity: 0;
         transform: scale(0.75) translateY(100px);
       }
+
       to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -428,8 +451,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       *,
-      *::before,
-      *::after {
+      *::before {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
       }
@@ -452,7 +474,7 @@
         type="video/mp4"
       />
 
-      Your browser does not support HTML5 video.
+      Browser Anda tidak mendukung HTML5 video.
     </video>
 
     <div class="video-overlay"></div>
