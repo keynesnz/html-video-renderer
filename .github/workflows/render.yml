@@ -1,4 +1,4 @@
-name: Render MP4
+name: Render video
 
 on:
   workflow_dispatch:
@@ -20,86 +20,54 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Check required files
+      - name: Create timestamp filename
         run: |
-          test -f source.html || {
-            echo "::error::source.html not found"
-            exit 1
-          }
-
-          test -f render.js || {
-            echo "::error::render.js not found"
-            exit 1
-          }
-
-          test -f index.html || {
-            echo "::error::index.html not found"
-            exit 1
-          }
-
-      - name: Create package.json if missing
-        run: |
-          if [ ! -f package.json ]; then
-            cat > package.json <<'EOF'
-          {
-            "name": "html-video-renderer",
-            "version": "1.0.0",
-            "private": true,
-            "scripts": {
-              "render": "node render.js"
-            },
-            "dependencies": {
-              "playwright": "^1.52.0"
-            }
-          }
-          EOF
-          fi
-
-      - name: Install Playwright
-        run: |
-          npm install playwright@1.52.0
-
-      - name: Install Chromium
-        run: |
-          npx playwright install --with-deps chromium
-
-      - name: Create video filename
-        run: |
-          VIDEO_NAME="$(
-            TZ=America/Chicago date '+%B-%d-%Y_%H-%M-%S'
-          ).mp4"
-
+          VIDEO_NAME="$(TZ=America/Chicago date '+%B-%d-%Y_%H-%M-%S').mp4"
           echo "VIDEO_NAME=$VIDEO_NAME" >> "$GITHUB_ENV"
+          echo "Video will be saved as: $VIDEO_NAME"
 
       - name: Render video
-        env:
-          INPUT: source.html
-          OUTPUT: ${{ env.VIDEO_NAME }}
         run: |
           node render.js
 
-      - name: Check rendered video
+          if [ ! -f output.mp4 ]; then
+            echo "::error::render.js did not create output.mp4"
+            echo "Files created:"
+            find . -maxdepth 3 -type f -ls
+            exit 1
+          fi
+
+          mv output.mp4 "$VIDEO_NAME"
+
+      - name: Validate video
         run: |
           if [ ! -f "$VIDEO_NAME" ]; then
-            echo "::error::Video was not created"
+            echo "::error::Video was not created: $VIDEO_NAME"
             exit 1
           fi
 
           if [ ! -s "$VIDEO_NAME" ]; then
-            echo "::error::Video file is empty"
+            echo "::error::Video file is empty: $VIDEO_NAME"
             exit 1
           fi
 
+          echo "Created video:"
           ls -lh "$VIDEO_NAME"
 
           ffprobe \
@@ -109,7 +77,7 @@ jobs:
             -of default=noprint_wrappers=1 \
             "$VIDEO_NAME"
 
-      - name: Prepare Pages
+      - name: Prepare GitHub Pages files
         run: |
           rm -rf pages
           mkdir -p pages/videos
@@ -122,7 +90,7 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Pages artifact
+      - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: pages
