@@ -7,8 +7,8 @@ const INPUT_HTML = path.resolve(__dirname, "source.html");
 const OUTPUT_VIDEO = path.resolve(__dirname, "output.mp4");
 const VIDEO_DIR = path.resolve(__dirname, ".video-recording");
 
-const WIDTH = 1920;
-const HEIGHT = 1080;
+const WIDTH = 1440;
+const HEIGHT = 2560;
 
 // Record only the first 15 seconds.
 const MAX_DURATION_SECONDS = 15;
