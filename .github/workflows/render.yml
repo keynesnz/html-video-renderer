@@ -59,19 +59,19 @@ jobs:
               "render": "node render.js"
             },
             "dependencies": {
-              "puppeteer": "^24.15.0"
+              "playwright": "^1.52.0"
             }
           }
           EOF
           fi
 
-      - name: Install Node dependencies
+      - name: Install Playwright
         run: |
-          npm install puppeteer@24.15.0
+          npm install playwright@1.52.0
 
       - name: Install Chromium
         run: |
-          npx puppeteer browsers install chrome
+          npx playwright install --with-deps chromium
 
       - name: Create video filename
         run: |
@@ -100,7 +100,6 @@ jobs:
             exit 1
           fi
 
-          echo "Created video:"
           ls -lh "$VIDEO_NAME"
 
           ffprobe \
