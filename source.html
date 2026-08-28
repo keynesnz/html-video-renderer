@@ -1,275 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Premium Lyrics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next Match</title>
 
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+    :root {
+      --white: #f5f5f7;
+      --soft-white: #d8d8dc;
+      --gray: #86868b;
+    }
+
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
     }
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      overflow: hidden;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background:
-        radial-gradient(
-          circle at 50% 50%,
-          #0b3d28 0%,
-          #061d13 35%,
-          #020806 75%,
-          #000 100%
-        );
-
+      color: var(--white);
       font-family:
+        "Inter",
         -apple-system,
         BlinkMacSystemFont,
         "SF Pro Display",
-        "SF Pro Text",
         "Helvetica Neue",
         Arial,
         sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
-    /* Ambient green glow */
-    body::before {
-      content: "";
-      position: fixed;
-
-      width: 60vw;
-      height: 60vw;
-
-      top: 50%;
-      left: 50%;
-
-      transform: translate(-50%, -50%);
-
-      background: #00ff8830;
-      filter: blur(150px);
-      border-radius: 50%;
-
-      animation: ambient 7s ease-in-out infinite alternate;
-    }
-
-    .lyrics {
+    .stage {
       position: relative;
-      z-index: 2;
-
-      width: 90%;
-      max-width: 1100px;
-      min-height: 150px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      text-align: center;
-
-      color: #f5fff9;
-
-      font-size: clamp(30px, 5vw, 70px);
-      font-weight: 300;
-
-      letter-spacing: -2px;
-      line-height: 1.2;
-
-      text-shadow:
-        0 0 20px #00ff8830,
-        0 0 50px #00ff8815;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      isolation: isolate;
+      background: #000;
     }
 
-    .line {
+    .stage::after {
+      content: "";
       position: absolute;
-
-      width: 100%;
-
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-
-      opacity: 0;
-      transition: opacity 0.6s ease;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.8'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
     }
 
-    .line.active {
-      opacity: 1;
-    }
-
-    .word {
-      display: inline-block;
+    .page {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      text-align: center;
+      overflow: hidden;
 
       opacity: 0;
-      filter: blur(8px);
-
-      transform:
-        translateY(18px)
-        scale(.97);
-
-      margin-right: 0.22em;
+      visibility: hidden;
+      transform: scale(1.04);
+      filter: blur(16px);
 
       transition:
-        opacity 0.55s cubic-bezier(.22, .61, .36, 1),
-        transform 0.55s cubic-bezier(.22, .61, .36, 1),
-        filter 0.55s ease;
+        opacity 1.2s ease,
+        visibility 1.2s ease,
+        transform 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 1.2s ease;
     }
 
-    .word.visible {
+    .page.active {
       opacity: 1;
-
-      transform:
-        translateY(0)
-        scale(1);
-
+      visibility: visible;
+      transform: scale(1);
       filter: blur(0);
     }
 
-    /* Ambient light */
-    @keyframes ambient {
-      from {
-        opacity: .4;
-        transform:
-          translate(-50%, -50%)
-          scale(.9);
+    /* Video background */
+    .background-video {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+
+      pointer-events: none;
+    }
+
+    /* Dark overlay for better text readability */
+    .page::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.62),
+          rgba(0, 0, 0, 0.28),
+          rgba(0, 0, 0, 0.7)
+        );
+    }
+
+    .content {
+      position: relative;
+      z-index: 3;
+      width: min(1200px, 100%);
+    }
+
+    .eyebrow {
+      margin-bottom: 32px;
+      color: var(--gray);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .headline {
+      position: relative;
+      overflow: hidden;
+      color: var(--white);
+      font-size: clamp(4rem, 13vw, 12rem);
+      font-weight: 600;
+      letter-spacing: -0.085em;
+      line-height: 0.88;
+    }
+
+    .matchup {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(28px, 6vw, 90px);
+    }
+
+    .team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .logo {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: clamp(90px, 13vw, 160px);
+      aspect-ratio: 1;
+      overflow: hidden;
+
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      background: #fff;
+
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .logo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .logo span {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      font-weight: 600;
+      letter-spacing: -0.1em;
+    }
+
+    .logo-a img {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+
+      width: 100%;
+      height: 100%;
+      padding: 0;
+
+      object-fit: cover;
+      object-position: center;
+      border-radius: 0;
+      background: #fff;
+    }
+
+    .logo-b {
+      background:
+        radial-gradient(
+          circle at 30% 20%,
+          rgba(255, 255, 255, 0.25),
+          transparent 35%
+        ),
+        linear-gradient(145deg, #682b35, #19090d);
+    }
+
+    .team-name {
+      position: relative;
+      overflow: hidden;
+      color: var(--white);
+      font-size: clamp(1rem, 2.2vw, 1.6rem);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+    }
+
+    .versus {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+      font-weight: 600;
+      letter-spacing: 0.18em;
+    }
+
+    .match-info {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-top: 38px;
+      color: var(--soft-white);
+      font-size: clamp(20px, 2vw, 19px);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .separator {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #aaa;
+    }
+
+    .headline::after,
+    .team-name::after {
+      content: "";
+      position: absolute;
+      top: -60%;
+      left: -40%;
+      width: 14%;
+      height: 220%;
+      opacity: 0;
+      transform: skewX(-18deg);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        rgba(255, 255, 255, 0.95),
+        rgba(255, 255, 255, 0.15),
+        transparent
+      );
+      filter: blur(10px);
+    }
+
+    .page.active .headline::after,
+    .page.active .team-name::after {
+      animation: textSweep 2.8s ease 0.7s forwards;
+    }
+
+    .footer {
+      position: absolute;
+      right: 32px;
+      bottom: 30px;
+      left: 32px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .progress {
+      flex: 1;
+      height: 1px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress span {
+      display: block;
+      width: 50%;
+      height: 100%;
+      background: #fff;
+      transform: translateX(-200%);
+      animation: progress 7s linear infinite;
+    }
+
+    .footer-label {
+      color: #aaa;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    @keyframes textSweep {
+      0% {
+        left: -40%;
+        opacity: 0;
       }
 
+      15% {
+        opacity: 1;
+      }
+
+      55% {
+        opacity: 0.7;
+      }
+
+      100% {
+        left: 130%;
+        opacity: 0;
+      }
+    }
+
+    @keyframes progress {
       to {
-        opacity: .8;
-        transform:
-          translate(-50%, -50%)
-          scale(1.1);
+        transform: translateX(220%);
       }
     }
 
     @media (max-width: 600px) {
-      .lyrics {
-        font-size: 30px;
-        letter-spacing: -1px;
+      .page {
+        padding: 24px;
+      }
+
+      .matchup {
+        gap: 16px;
+      }
+
+      .team {
+        gap: 14px;
+      }
+
+      .logo {
+        width: 82px;
+        border-radius: 6px;
+      }
+
+      .logo::before {
+        border-radius: 6px;
+      }
+
+      .team-name {
+        font-size: 0.85rem;
+      }
+
+      .versus {
+        font-size: 0.7rem;
+      }
+
+      .match-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .separator {
+        display: none;
+      }
+
+      .footer {
+        right: 24px;
+        bottom: 24px;
+        left: 24px;
       }
     }
   </style>
 </head>
 
 <body>
+  <main class="stage">
 
-  <div class="lyrics">
+    <!-- Page 1 -->
+    <section class="page page-one active">
+      <video
+        class="background-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+      >
+        <source
+          src="https://dl.snapcdn.app/get?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHRwczovL3ZpZGVvLnR3aW1nLmNvbS9hbXBsaWZ5X3ZpZGVvLzIwMDAyOTI3NDA4NDg4NDg4OTcvdmlkL2F2YzEvMTA4MHgxMDgwLzlXZHJCZEFGVjdEY1MwSnMubXA0P3RhZz0yMSIsImZpbGVuYW1lIjoiWDJUd2l0dGVyLmNvbV85V2RyQmRBRlY3RGNTMEpzXzEwODBwLm1wNCIsIm5iZiI6MTc4NzkxMjU4OCwiZXhwIjoxNzg3OTE2MTg4LCJpYXQiOjE3ODc5MTI1ODh9.ONssPIz1xZa3SF5SnL6ZutXBs2IsYVnEoVRnAQZKykE"
+          type="video/mp4"
+        />
+      </video>
 
-    <div class="line">
-      <span class="word">So</span>
-      <span class="word">baby,</span>
-      <span class="word">don't</span>
-      <span class="word">worry,</span>
+      <div class="content">
+        <p class="eyebrow"></p>
+        <h1 class="headline">A MUST WIN MATCH</h1>
+      </div>
+    </section>
+
+    <!-- Page 2 -->
+    <section class="page page-two">
+      <video
+        class="background-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+      >
+        <source
+          src="https://dl.snapcdn.app/get?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHRwczovL3ZpZGVvLnR3aW1nLmNvbS9hbXBsaWZ5X3ZpZGVvLzIwMDAyOTI3NDA4NDg4NDg4OTcvdmlkL2F2YzEvMTA4MHgxMDgwLzlXZHJCZEFGVjdEY1MwSnMubXA0P3RhZz0yMSIsImZpbGVuYW1lIjoiWDJUd2l0dGVyLmNvbV85V2RyQmRBRlY3RGNTMEpzXzEwODBwLm1wNCIsIm5iZiI6MTc4NzkxMjU4OCwiZXhwIjoxNzg3OTE2MTg4LCJpYXQiOjE3ODc5MTI1ODh9.ONssPIz1xZa3SF5SnL6ZutXBs2IsYVnEoVRnAQZKykE"
+          type="video/mp4"
+        />
+      </video>
+
+      <div class="content">
+        <p class="eyebrow" style="font-size: 24px;">PREMIER LEAGUE</p>
+
+        <div class="matchup">
+
+          <!-- Club A -->
+          <div class="team">
+            <div class="logo logo-a">
+              <img
+                src="https://i.ibb.co.com/s9CZJ581/IMG-20251122-132409-236.jpg"
+                alt="Club A logo"
+              />
+            </div>
+
+            <h2 class="team-name">Manchester City</h2>
+          </div>
+
+          <div class="versus">VS</div>
+
+          <!-- Club B -->
+          <div class="team">
+            <div class="logo logo-a">
+           <img
+                src="https://i.ibb.co.com/Z1F0K10S/MAYs1z-DK.jpg"
+                alt="Club B logo"
+              />
+              <span>B</span>
+            </div>
+
+            <h2 class="team-name">Bournemouth</h2>
+          </div>
+
+        </div>
+
+        <div class="match-info">
+          <span>TODAY, 23 AUG 2026</span>
+          <span class="separator"></span>
+          <span>14.00 BST</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div class="progress">
+        <span></span>
+      </div>
+
+      <div class="footer-label"></div>
     </div>
 
-    <div class="line">
-      <span class="word">you</span>
-      <span class="word">are</span>
-      <span class="word">my</span>
-      <span class="word">only</span>
-    </div>
-
-    <div class="line">
-      <span class="word">You</span>
-      <span class="word">won't</span>
-      <span class="word">be</span>
-      <span class="word">lonely</span>
-    </div>
-
-    <div class="line">
-      <span class="word">even</span>
-      <span class="word">if</span>
-      <span class="word">the</span>
-      <span class="word">sky</span>
-      <span class="word">is</span>
-      <span class="word">falling</span>
-      <span class="word">down</span>
-    </div>
-
-  </div>
-
+  </main>
 
   <script>
-    const lines = document.querySelectorAll(".line");
+    const pages = document.querySelectorAll(".page");
+    const progressBar = document.querySelector(".progress span");
 
-    // Kecepatan munculnya setiap kata
-    const WORD_DELAY = 175;
+    let currentPage = 0;
+    let timer;
 
-    // Waktu setelah satu baris lengkap sebelum menghilang
-    const HOLD_TIME = 900;
-
-    // Durasi fade out
-    const FADE_OUT = 600;
-
-    // Jeda sebelum baris berikutnya
-    const GAP = 300;
-
-
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+    function restartProgress() {
+      progressBar.style.animation = "none";
+      progressBar.offsetHeight;
+      progressBar.style.animation = "progress 7s linear infinite";
     }
 
+    function switchPage() {
+      pages[currentPage].classList.remove("active");
 
-    async function showLine(line) {
+      currentPage = (currentPage + 1) % pages.length;
 
-      const words = line.querySelectorAll(".word");
+      pages[currentPage].classList.add("active");
 
-      // Reset semua kata terlebih dahulu
-      words.forEach(word => {
-        word.classList.remove("visible");
-      });
+      restartProgress();
 
-      // Tampilkan baris
-      line.classList.add("active");
-
-      // Munculkan kata satu per satu
-      for (const word of words) {
-        await wait(WORD_DELAY);
-
-        word.classList.add("visible");
-      }
-
-      // Biarkan satu baris lengkap terlihat
-      await wait(HOLD_TIME);
-
-      // Hilangkan seluruh baris
-      line.classList.remove("active");
-
-      // Reset kata setelah fade out
-      await wait(FADE_OUT);
-
-      words.forEach(word => {
-        word.classList.remove("visible");
-      });
-
-      // Jeda kecil sebelum baris berikutnya
-      await wait(GAP);
+      clearTimeout(timer);
+      timer = setTimeout(switchPage, 7000);
     }
 
+    document
+      .querySelector(".stage")
+      .addEventListener("click", switchPage);
 
-    async function playLyrics() {
-
-      while (true) {
-
-        // Selalu mulai dari baris pertama
-        for (const line of lines) {
-          await showLine(line);
-        }
-
-      }
-
-    }
-
-
-    // Mulai animasi
-    playLyrics();
+    timer = setTimeout(switchPage, 7000);
   </script>
-
 </body>
 </html>
