@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Next Match</title>
+  <title>Fri-Match</title>
 
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
@@ -49,15 +49,17 @@
       overflow: hidden;
       isolation: isolate;
       background: #000;
+      cursor: pointer;
     }
 
+    /* Subtle film grain */
     .stage::after {
       content: "";
       position: absolute;
       inset: 0;
       z-index: 20;
       pointer-events: none;
-      opacity: 0.08;
+      opacity: 0.07;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.8'/%3E%3C/svg%3E");
       mix-blend-mode: soft-light;
     }
@@ -68,19 +70,19 @@
       display: grid;
       place-items: center;
       padding: 32px;
-      text-align: center;
       overflow: hidden;
+      text-align: center;
 
       opacity: 0;
       visibility: hidden;
-      transform: scale(1.04);
-      filter: blur(16px);
+      transform: scale(1.06);
+      filter: blur(18px);
 
       transition:
-        opacity 1.2s ease,
-        visibility 1.2s ease,
-        transform 1.6s cubic-bezier(0.16, 1, 0.3, 1),
-        filter 1.2s ease;
+        opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 1.8s ease,
+        transform 2.2s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 1.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .page.active {
@@ -90,21 +92,141 @@
       filter: blur(0);
     }
 
-    /* Video background */
-    .background-video {
+    /* Premium Apple-style moving background */
+    .animated-background {
       position: absolute;
       inset: 0;
       z-index: -2;
-
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-
-      pointer-events: none;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        linear-gradient(
+          135deg,
+          #000000 0%,
+          #07111f 38%,
+          #160b2c 68%,
+          #000000 100%
+        );
     }
 
-    /* Dark overlay for better text readability */
+    .animated-background::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          ellipse at center,
+          transparent 18%,
+          rgba(0, 0, 0, 0.3) 65%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+    }
+
+    .animated-background::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          115deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.08) 48%,
+          transparent 56%
+        );
+      mix-blend-mode: overlay;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.72;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+
+    .orb-one {
+      top: -18%;
+      left: -8%;
+      width: 48vw;
+      height: 48vw;
+      background: #0066ff;
+      animation: orbOne 18s ease-in-out infinite alternate;
+    }
+
+    .orb-two {
+      top: 8%;
+      right: -12%;
+      width: 43vw;
+      height: 43vw;
+      background: #8b25ff;
+      animation: orbTwo 21s ease-in-out infinite alternate;
+    }
+
+    .orb-three {
+      right: 20%;
+      bottom: -28%;
+      width: 52vw;
+      height: 52vw;
+      background: #f00070;
+      animation: orbThree 24s ease-in-out infinite alternate;
+    }
+
+    .orb-four {
+      bottom: 8%;
+      left: 18%;
+      width: 30vw;
+      height: 30vw;
+      background: #00b7ff;
+      opacity: 0.45;
+      animation: orbFour 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbOne {
+      from {
+        transform: translate3d(-8%, -4%, 0) scale(0.9);
+      }
+
+      to {
+        transform: translate3d(34%, 28%, 0) scale(1.3);
+      }
+    }
+
+    @keyframes orbTwo {
+      from {
+        transform: translate3d(8%, -8%, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(-38%, 28%, 0) scale(1.25);
+      }
+    }
+
+    @keyframes orbThree {
+      from {
+        transform: translate3d(18%, 15%, 0) scale(0.85);
+      }
+
+      to {
+        transform: translate3d(-28%, -35%, 0) scale(1.2);
+      }
+    }
+
+    @keyframes orbFour {
+      from {
+        transform: translate3d(-15%, 10%, 0) scale(0.8);
+      }
+
+      to {
+        transform: translate3d(40%, -25%, 0) scale(1.25);
+      }
+    }
+
+    /* Dark text overlay */
     .page::after {
       content: "";
       position: absolute;
@@ -114,9 +236,9 @@
       background:
         linear-gradient(
           135deg,
-          rgba(0, 0, 0, 0.62),
-          rgba(0, 0, 0, 0.28),
-          rgba(0, 0, 0, 0.7)
+          rgba(0, 0, 0, 0.56),
+          rgba(0, 0, 0, 0.2),
+          rgba(0, 0, 0, 0.72)
         );
     }
 
@@ -135,16 +257,88 @@
       text-transform: uppercase;
     }
 
+    /* Headline */
     .headline {
-      position: relative;
-      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
       color: var(--white);
       font-size: clamp(4rem, 13vw, 12rem);
       font-weight: 600;
       letter-spacing: -0.085em;
       line-height: 0.88;
+      white-space: nowrap;
     }
 
+    .static-text {
+      display: inline-block;
+    }
+
+    .animated-word {
+      display: inline-flex;
+      perspective: 900px;
+    }
+
+    .animated-word span {
+      display: inline-block;
+      opacity: 0;
+      transform: rotateY(180deg) scale(0.7);
+      transform-origin: center;
+      animation: letterFlip 5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .animated-word span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .animated-word span:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .animated-word span:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    .animated-word span:nth-child(4) {
+      animation-delay: 0.36s;
+    }
+
+    .animated-word span:nth-child(5) {
+      animation-delay: 0.48s;
+    }
+
+    @keyframes letterFlip {
+      0% {
+        opacity: 0;
+        transform: rotateY(180deg) scale(0.7);
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      28% {
+        opacity: 1;
+        transform: rotateY(0deg) scale(1);
+      }
+
+      72% {
+        opacity: 1;
+        transform: rotateY(0deg) scale(1);
+      }
+
+      86% {
+        opacity: 0;
+        transform: rotateY(-180deg) scale(0.7);
+      }
+
+      100% {
+        opacity: 0;
+        transform: rotateY(-180deg) scale(0.7);
+      }
+    }
+
+    /* Matchup */
     .matchup {
       display: flex;
       justify-content: center;
@@ -166,63 +360,91 @@
       width: clamp(90px, 13vw, 160px);
       aspect-ratio: 1;
       overflow: hidden;
-
       border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 8px;
       background: #fff;
-
       box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.4),
         inset 0 0 0 1px rgba(255, 255, 255, 0.25);
     }
 
+    .logo img {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      background: #fff;
+    }
+
+    /* Logo border */
     .logo::before {
       content: "";
       position: absolute;
       inset: 0;
       z-index: 3;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       border-radius: 8px;
       pointer-events: none;
     }
 
-    .logo span {
-      position: relative;
-      z-index: 1;
-      color: #fff;
-      font-size: clamp(2.5rem, 5vw, 5rem);
-      font-weight: 600;
-      letter-spacing: -0.1em;
-    }
-
-    .logo-a img {
+    /* Light sweep on logos only */
+    .logo::after {
+      content: "";
       position: absolute;
-      inset: 0;
-      z-index: 2;
+      top: -60%;
+      left: -80%;
+      z-index: 4;
+      width: 38%;
+      height: 220%;
+      opacity: 0;
+      pointer-events: none;
+      transform: skewX(-18deg);
 
-      width: 100%;
-      height: 100%;
-      padding: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        rgba(255, 255, 255, 0.95),
+        rgba(255, 255, 255, 0.15),
+        transparent
+      );
 
-      object-fit: cover;
-      object-position: center;
-      border-radius: 0;
-      background: #fff;
+      filter: blur(6px);
     }
 
-    .logo-b {
-      background:
-        radial-gradient(
-          circle at 30% 20%,
-          rgba(255, 255, 255, 0.25),
-          transparent 35%
-        ),
-        linear-gradient(145deg, #682b35, #19090d);
+    .page.active .logo::after {
+      animation: logoLightSweep 2.4s ease-in-out 0.6s infinite;
+    }
+
+    @keyframes logoLightSweep {
+      0% {
+        left: -80%;
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      45% {
+        opacity: 0.85;
+      }
+
+      70% {
+        left: 145%;
+        opacity: 0;
+      }
+
+      100% {
+        left: 145%;
+        opacity: 0;
+      }
     }
 
     .team-name {
-      position: relative;
-      overflow: hidden;
       color: var(--white);
       font-size: clamp(1rem, 2.2vw, 1.6rem);
       font-weight: 600;
@@ -244,7 +466,7 @@
       gap: 18px;
       margin-top: 38px;
       color: var(--soft-white);
-      font-size: clamp(20px, 2vw, 19px);
+      font-size: clamp(16px, 2vw, 20px);
       font-weight: 500;
       letter-spacing: 0.03em;
     }
@@ -256,32 +478,7 @@
       background: #aaa;
     }
 
-    .headline::after,
-    .team-name::after {
-      content: "";
-      position: absolute;
-      top: -60%;
-      left: -40%;
-      width: 14%;
-      height: 220%;
-      opacity: 0;
-      transform: skewX(-18deg);
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.15),
-        rgba(255, 255, 255, 0.95),
-        rgba(255, 255, 255, 0.15),
-        transparent
-      );
-      filter: blur(10px);
-    }
-
-    .page.active .headline::after,
-    .page.active .team-name::after {
-      animation: textSweep 2.8s ease 0.7s forwards;
-    }
-
+    /* Footer */
     .footer {
       position: absolute;
       right: 32px;
@@ -309,6 +506,12 @@
       animation: progress 7s linear infinite;
     }
 
+    @keyframes progress {
+      to {
+        transform: translateX(220%);
+      }
+    }
+
     .footer-label {
       color: #aaa;
       font-size: 9px;
@@ -317,35 +520,13 @@
       text-transform: uppercase;
     }
 
-    @keyframes textSweep {
-      0% {
-        left: -40%;
-        opacity: 0;
-      }
-
-      15% {
-        opacity: 1;
-      }
-
-      55% {
-        opacity: 0.7;
-      }
-
-      100% {
-        left: 130%;
-        opacity: 0;
-      }
-    }
-
-    @keyframes progress {
-      to {
-        transform: translateX(220%);
-      }
-    }
-
     @media (max-width: 600px) {
       .page {
         padding: 24px;
+      }
+
+      .headline {
+        font-size: clamp(3.5rem, 16vw, 6rem);
       }
 
       .matchup {
@@ -374,7 +555,6 @@
       }
 
       .match-info {
-        flex-direction: column;
         gap: 10px;
       }
 
@@ -387,6 +567,45 @@
         bottom: 24px;
         left: 24px;
       }
+
+      .orb {
+        filter: blur(48px);
+      }
+
+      .orb-one {
+        width: 75vw;
+        height: 75vw;
+      }
+
+      .orb-two {
+        width: 65vw;
+        height: 65vw;
+      }
+
+      .orb-three {
+        width: 80vw;
+        height: 80vw;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orb,
+      .animated-word span,
+      .logo::after,
+      .progress span {
+        animation: none;
+      }
+
+      .animated-word span {
+        opacity: 1;
+        transform: none;
+      }
+
+      .page {
+        transition: opacity 0.3s ease;
+        transform: none;
+        filter: none;
+      }
     }
   </style>
 </head>
@@ -396,53 +615,52 @@
 
     <!-- Page 1 -->
     <section class="page page-one active">
-      <video
-        class="background-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto"
-      >
-        <source
-          src="https://www.image2url.com/r2/default/videos/1787920620249-c5704667-e2c2-441f-88fb-81e339ba06aa.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <div class="animated-background">
+        <div class="orb orb-one"></div>
+        <div class="orb orb-two"></div>
+        <div class="orb orb-three"></div>
+        <div class="orb orb-four"></div>
+      </div>
 
       <div class="content">
         <p class="eyebrow"></p>
-        <h1 class="headline">A MUST WIN MATCH</h1>
+
+        <h1 class="headline">
+          <span class="static-text">FRI-</span>
+
+          <span class="animated-word" aria-label="MATCH">
+            <span>M</span>
+            <span>A</span>
+            <span>T</span>
+            <span>C</span>
+            <span>H</span>
+          </span>
+        </h1>
       </div>
     </section>
 
     <!-- Page 2 -->
     <section class="page page-two">
-      <video
-        class="background-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto"
-      >
-        <source
-          src="https://www.image2url.com/r2/default/videos/1787920620249-c5704667-e2c2-441f-88fb-81e339ba06aa.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <div class="animated-background">
+        <div class="orb orb-one"></div>
+        <div class="orb orb-two"></div>
+        <div class="orb orb-three"></div>
+        <div class="orb orb-four"></div>
+      </div>
 
       <div class="content">
-        <p class="eyebrow" style="font-size: 24px;">PREMIER LEAGUE</p>
+        <p class="eyebrow" style="font-size: 24px;">
+          PREMIER LEAGUE
+        </p>
 
         <div class="matchup">
 
-          <!-- Club A -->
+          <!-- Manchester City -->
           <div class="team">
-            <div class="logo logo-a">
+            <div class="logo">
               <img
                 src="https://i.ibb.co.com/s9CZJ581/IMG-20251122-132409-236.jpg"
-                alt="Club A logo"
+                alt="Manchester City logo"
               />
             </div>
 
@@ -451,14 +669,13 @@
 
           <div class="versus">VS</div>
 
-          <!-- Club B -->
+          <!-- Bournemouth -->
           <div class="team">
-            <div class="logo logo-a">
-           <img
+            <div class="logo">
+              <img
                 src="https://i.ibb.co.com/Z1F0K10S/MAYs1z-DK.jpg"
-                alt="Club B logo"
+                alt="Bournemouth logo"
               />
-              <span>B</span>
             </div>
 
             <h2 class="team-name">Bournemouth</h2>
@@ -481,7 +698,6 @@
 
       <div class="footer-label"></div>
     </div>
-
   </main>
 
   <script>
@@ -498,11 +714,17 @@
     }
 
     function switchPage() {
-      pages[currentPage].classList.remove("active");
+      const oldPage = pages[currentPage];
 
       currentPage = (currentPage + 1) % pages.length;
+      const newPage = pages[currentPage];
 
-      pages[currentPage].classList.add("active");
+      oldPage.classList.remove("active");
+
+      // Small delay creates a softer crossfade between pages
+      requestAnimationFrame(() => {
+        newPage.classList.add("active");
+      });
 
       restartProgress();
 
