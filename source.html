@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Night Sky with Natural Clouds</title>
+  <title>Night Forest Animation</title>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      min-height: 100vh;
-      background: #030719;
+      background: #020711;
       font-family: Arial, sans-serif;
     }
 
@@ -23,45 +25,93 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background:
-        linear-gradient(
-          to bottom,
-          #020516 0%,
-          #071638 45%,
-          #18295a 75%,
-          #2d3e68 100%
-        );
+      background: linear-gradient(
+        to bottom,
+        #020516 0%,
+        #071638 42%,
+        #18295a 72%,
+        #415d72 100%
+      );
     }
 
-    /* Stars */
-    .stars,
-    .stars::before,
-    .stars::after {
+    /* Bintang lebih sedikit */
+    .stars {
       position: absolute;
       inset: 0;
-      content: "";
-      background-image:
-        radial-gradient(circle, white 1px, transparent 2px),
-        radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 2px),
-        radial-gradient(circle, rgba(255,255,255,.5) 1px, transparent 2px);
-      background-size: 90px 120px, 150px 170px, 220px 210px;
-      background-position: 10px 20px, 50px 80px, 100px 30px;
-      animation: twinkle 4s ease-in-out infinite alternate;
+      z-index: 1;
     }
 
-    .stars::before {
-      opacity: 0.55;
-      transform: scale(1.2);
-      animation-delay: -2s;
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 7px white;
+      animation: blink 2s ease-in-out infinite alternate;
     }
 
-    .stars::after {
-      opacity: 0.35;
-      transform: scale(0.9);
-      animation-delay: -1s;
+    .star:nth-child(1) {
+      left: 8%;
+      top: 15%;
+      animation-delay: -.5s;
     }
 
-    /* Moon */
+    .star:nth-child(2) {
+      left: 18%;
+      top: 7%;
+      animation-delay: -1.2s;
+    }
+
+    .star:nth-child(3) {
+      left: 31%;
+      top: 20%;
+      animation-delay: -.2s;
+    }
+
+    .star:nth-child(4) {
+      left: 43%;
+      top: 9%;
+      animation-delay: -1.8s;
+    }
+
+    .star:nth-child(5) {
+      left: 57%;
+      top: 18%;
+      animation-delay: -.8s;
+    }
+
+    .star:nth-child(6) {
+      left: 69%;
+      top: 6%;
+      animation-delay: -1.5s;
+    }
+
+    .star:nth-child(7) {
+      left: 82%;
+      top: 16%;
+      animation-delay: -.3s;
+    }
+
+    .star:nth-child(8) {
+      left: 93%;
+      top: 28%;
+      animation-delay: -1.1s;
+    }
+
+    .star:nth-child(9) {
+      left: 38%;
+      top: 31%;
+      animation-delay: -.6s;
+    }
+
+    .star:nth-child(10) {
+      left: 74%;
+      top: 29%;
+      animation-delay: -1.3s;
+    }
+
+    /* Bulan */
     .moon {
       position: absolute;
       top: 12%;
@@ -73,8 +123,8 @@
       background: #fffbd4;
       box-shadow:
         0 0 20px #fffbd4,
-        0 0 50px rgba(255, 251, 212, 0.75),
-        0 0 100px rgba(255, 251, 212, 0.3);
+        0 0 50px rgba(255, 251, 212, .75),
+        0 0 100px rgba(255, 251, 212, .3);
       animation: moonMove 26s linear infinite;
     }
 
@@ -86,26 +136,23 @@
       width: 17px;
       height: 17px;
       border-radius: 50%;
-      background: rgba(190, 185, 145, 0.35);
+      background: rgba(190, 185, 145, .35);
       box-shadow:
-        34px 13px 0 5px rgba(190, 185, 145, 0.25),
-        18px 49px 0 3px rgba(190, 185, 145, 0.3),
-        57px 54px 0 7px rgba(190, 185, 145, 0.2),
-        65px 29px 0 2px rgba(190, 185, 145, 0.3);
+        34px 13px 0 5px rgba(190,185,145,.25),
+        18px 49px 0 3px rgba(190,185,145,.3),
+        57px 54px 0 7px rgba(190,185,145,.2),
+        65px 29px 0 2px rgba(190,185,145,.3);
     }
 
-    /*
-      Natural cloud
-      Each cloud has several soft overlapping cloud bubbles.
-    */
+    /* Awan */
     .cloud {
       position: absolute;
       left: -420px;
       z-index: 4;
       width: 390px;
       height: 125px;
-      opacity: 0.72;
-      filter: blur(0.4px) drop-shadow(0 14px 13px rgba(0, 0, 0, 0.3));
+      opacity: .55;
+      filter: blur(.5px) drop-shadow(0 14px 13px rgba(0,0,0,.3));
       animation: cloudMove linear infinite;
     }
 
@@ -116,30 +163,22 @@
       width: 100%;
       height: 63px;
       border-radius: 80px;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(225, 235, 255, 0.88),
-          rgba(103, 126, 170, 0.72)
-        );
-      box-shadow:
-        inset 0 8px 14px rgba(255, 255, 255, 0.35),
-        inset 0 -13px 17px rgba(30, 48, 90, 0.22);
+      background: linear-gradient(
+        to bottom,
+        rgba(225,235,255,.85),
+        rgba(103,126,170,.65)
+      );
     }
 
     .puff {
       position: absolute;
       border-radius: 50%;
-      background:
-        radial-gradient(
-          circle at 38% 28%,
-          rgba(255, 255, 255, 0.98) 0%,
-          rgba(224, 235, 255, 0.9) 48%,
-          rgba(101, 126, 173, 0.72) 100%
-        );
-      box-shadow:
-        inset -10px -12px 17px rgba(34, 53, 94, 0.18),
-        inset 8px 7px 13px rgba(255, 255, 255, 0.32);
+      background: radial-gradient(
+        circle at 38% 28%,
+        rgba(255,255,255,.95),
+        rgba(224,235,255,.85) 48%,
+        rgba(101,126,173,.65)
+      );
     }
 
     .puff-1 {
@@ -177,52 +216,523 @@
     }
 
     .cloud-2 {
-      top: 47%;
-      transform: scale(0.72);
-      opacity: 0.48;
+      top: 48%;
+      transform: scale(.72);
+      opacity: .35;
       animation-duration: 27s;
       animation-delay: -11s;
     }
 
     .cloud-3 {
-      top: 68%;
+      top: 67%;
       transform: scale(1.35);
-      opacity: 0.3;
+      opacity: .2;
       animation-duration: 52s;
       animation-delay: -25s;
     }
 
-    /* Shooting star */
-    .shooting-star {
+    /* Kelelawar */
+    .bat {
       position: absolute;
-      top: 18%;
-      left: -160px;
-      z-index: 2;
-      width: 130px;
-      height: 2px;
-      background: linear-gradient(to right, transparent, white);
-      transform: rotate(-25deg);
-      animation: shootingStar 9s linear infinite;
+      left: -100px;
+      z-index: 8;
+      width: 46px;
+      height: 22px;
+      animation: batFly linear infinite;
     }
 
-    .shooting-star::after {
+    .bat::before,
+    .bat::after {
       content: "";
       position: absolute;
-      right: 0;
-      top: -2px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: white;
-      box-shadow: 0 0 13px white;
+      top: 3px;
+      width: 25px;
+      height: 17px;
+      background: #080b18;
+      clip-path: polygon(
+        0 0,
+        25% 35%,
+        42% 10%,
+        55% 45%,
+        75% 18%,
+        100% 0,
+        87% 75%,
+        60% 100%,
+        50% 65%,
+        40% 100%,
+        13% 75%
+      );
     }
 
-    /* Purple and white five-bar soundwave */
+    .bat::before {
+      left: -2px;
+      transform: rotate(9deg);
+      transform-origin: right center;
+      animation: wingLeft .35s ease-in-out infinite alternate;
+    }
+
+    .bat::after {
+      right: -2px;
+      transform: scaleX(-1) rotate(9deg);
+      transform-origin: left center;
+      animation: wingRight .35s ease-in-out infinite alternate;
+    }
+
+    .bat-1 {
+      top: 12%;
+      transform: scale(.65);
+      animation-duration: 12s;
+      animation-delay: -2s;
+    }
+
+    .bat-2 {
+      top: 19%;
+      transform: scale(.9);
+      animation-duration: 15s;
+      animation-delay: -8s;
+    }
+
+    .bat-3 {
+      top: 26%;
+      transform: scale(.55);
+      animation-duration: 18s;
+      animation-delay: -12s;
+    }
+
+    .bat-4 {
+      top: 31%;
+      transform: scale(1);
+      animation-duration: 21s;
+      animation-delay: -5s;
+    }
+
+    .bat-5 {
+      top: 37%;
+      transform: scale(.7);
+      animation-duration: 16s;
+      animation-delay: -14s;
+    }
+
+    .bat-6 {
+      top: 15%;
+      transform: scale(.45);
+      animation-duration: 19s;
+      animation-delay: -7s;
+    }
+
+    .bat-7 {
+      top: 23%;
+      transform: scale(.8);
+      animation-duration: 14s;
+      animation-delay: -10s;
+    }
+
+    .bat-8 {
+      top: 42%;
+      transform: scale(.5);
+      animation-duration: 23s;
+      animation-delay: -18s;
+    }
+
+    .bat-9 {
+      top: 9%;
+      transform: scale(.6);
+      animation-duration: 17s;
+      animation-delay: -4s;
+    }
+
+    .bat-10 {
+      top: 34%;
+      transform: scale(.75);
+      animation-duration: 20s;
+      animation-delay: -16s;
+    }
+
+    /* Bukit rendah dan datar */
+    .forest-hill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 20%;
+      z-index: 5;
+      height: 21%;
+      background: linear-gradient(
+        to bottom,
+        #356b3c 0%,
+        #275832 48%,
+        #173b25 100%
+      );
+      box-shadow:
+        0 -8px 25px rgba(101,156,99,.2),
+        inset 0 12px 22px rgba(147,190,113,.12);
+    }
+
+    .forest-hill::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: #477a45;
+      box-shadow: 0 0 14px rgba(131,181,111,.35);
+    }
+
+    /* Pepohonan jauh */
+    .distant-trees {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 40%;
+      z-index: 6;
+      height: 58px;
+      opacity: .95;
+      background:
+        linear-gradient(135deg, transparent 45%, #173b25 46% 60%, transparent 61%)
+        0 20px / 70px 65px repeat-x,
+        linear-gradient(225deg, transparent 45%, #1e492b 46% 60%, transparent 61%)
+        35px 15px / 80px 65px repeat-x;
+    }
+
+    /* Pohon rindang */
+    .tree {
+      position: absolute;
+      bottom: 29%;
+      z-index: 7;
+      width: 105px;
+      height: 190px;
+      filter: drop-shadow(8px 12px 8px rgba(0,0,0,.4));
+    }
+
+    .tree::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 46px;
+      width: 17px;
+      height: 112px;
+      border-radius: 9px;
+      background: linear-gradient(to right, #21170d, #654323, #1b130b);
+    }
+
+    .tree::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 2px;
+      width: 101px;
+      height: 110px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 25% 25%, #719b56 0 15%, transparent 16%),
+        radial-gradient(circle at 70% 22%, #557f46 0 21%, transparent 22%),
+        radial-gradient(circle at 50% 60%, #3e703e 0 29%, transparent 30%),
+        radial-gradient(circle at 18% 66%, #315e37 0 24%, transparent 25%),
+        radial-gradient(circle at 82% 68%, #294f32 0 25%, transparent 26%),
+        #315f38;
+      box-shadow:
+        14px 17px 0 5px #456f3d,
+        -13px 25px 0 4px #244e30;
+    }
+
+    .tree-1 {
+      left: 5%;
+      transform: scale(.7);
+    }
+
+    .tree-2 {
+      left: 21%;
+      bottom: 25%;
+      transform: scale(.95);
+    }
+
+    .tree-3 {
+      right: 22%;
+      bottom: 26%;
+      transform: scale(.85);
+    }
+
+    .tree-4 {
+      right: 4%;
+      transform: scale(.65);
+    }
+
+    /* Semak */
+    .bush {
+      position: absolute;
+      z-index: 10;
+      bottom: 16%;
+      width: 140px;
+      height: 58px;
+      border-radius: 70% 70% 20% 20%;
+      background:
+        radial-gradient(circle at 20% 55%, #527e3e 0 23%, transparent 24%),
+        radial-gradient(circle at 45% 35%, #3c6b39 0 31%, transparent 32%),
+        radial-gradient(circle at 72% 50%, #2d5a34 0 30%, transparent 31%),
+        #173b25;
+      filter: drop-shadow(5px 8px 5px rgba(0,0,0,.4));
+    }
+
+    .bush-1 {
+      left: 2%;
+    }
+
+    .bush-2 {
+      left: 39%;
+      transform: scale(.7);
+    }
+
+    .bush-3 {
+      right: 3%;
+      transform: scale(1.05);
+    }
+
+    /* Rusa berjalan */
+    .deer {
+      position: absolute;
+      left: -160px;
+      bottom: 16%;
+      z-index: 12;
+      width: 125px;
+      height: 105px;
+      transform: scale(.65);
+      filter: drop-shadow(5px 8px 5px rgba(0,0,0,.6));
+      animation: deerWalk 24s linear infinite;
+    }
+
+    .deer-body {
+      position: absolute;
+      left: 25px;
+      bottom: 25px;
+      width: 70px;
+      height: 42px;
+      border-radius: 55% 45% 45% 50%;
+      background: #6b4528;
+    }
+
+    .deer-neck {
+      position: absolute;
+      left: 70px;
+      bottom: 51px;
+      width: 17px;
+      height: 48px;
+      border-radius: 50%;
+      transform: rotate(-18deg);
+      background: #754a2b;
+    }
+
+    .deer-head {
+      position: absolute;
+      left: 77px;
+      bottom: 87px;
+      width: 35px;
+      height: 25px;
+      border-radius: 55% 45% 45% 50%;
+      transform: rotate(-10deg);
+      background: #7d5030;
+    }
+
+    .deer-head::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: 9px;
+      width: 12px;
+      height: 7px;
+      border-radius: 50%;
+      background: #332015;
+    }
+
+    .deer-ear {
+      position: absolute;
+      left: 83px;
+      bottom: 105px;
+      width: 17px;
+      height: 8px;
+      border-radius: 100% 0;
+      transform: rotate(25deg);
+      background: #805333;
+    }
+
+    .deer-antler {
+      position: absolute;
+      left: 88px;
+      bottom: 106px;
+      width: 3px;
+      height: 28px;
+      transform: rotate(-16deg);
+      background: #2b1b11;
+    }
+
+    .deer-antler::before,
+    .deer-antler::after {
+      content: "";
+      position: absolute;
+      width: 3px;
+      height: 16px;
+      background: #2b1b11;
+    }
+
+    .deer-antler::before {
+      top: 3px;
+      left: -8px;
+      transform: rotate(-38deg);
+    }
+
+    .deer-antler::after {
+      top: 0;
+      left: 7px;
+      transform: rotate(38deg);
+    }
+
+    .deer-leg {
+      position: absolute;
+      bottom: 0;
+      width: 7px;
+      height: 38px;
+      border-radius: 5px;
+      background: #4b2d1c;
+      transform-origin: top center;
+      animation: legMove .45s ease-in-out infinite alternate;
+    }
+
+    .leg-1 {
+      left: 39px;
+      animation-delay: -.2s;
+    }
+
+    .leg-2 {
+      left: 58px;
+      animation-delay: -.45s;
+    }
+
+    .leg-3 {
+      left: 78px;
+      animation-delay: -.1s;
+    }
+
+    .leg-4 {
+      left: 91px;
+      animation-delay: -.35s;
+    }
+
+    .deer-tail {
+      position: absolute;
+      left: 20px;
+      bottom: 57px;
+      width: 25px;
+      height: 12px;
+      border-radius: 100% 0;
+      transform: rotate(-25deg);
+      background: #754a2b;
+    }
+
+    /* Kelinci berjalan */
+    .rabbit {
+      position: absolute;
+      left: 110%;
+      bottom: 14%;
+      z-index: 12;
+      width: 70px;
+      height: 58px;
+      transform: scale(.6);
+      filter: drop-shadow(4px 6px 4px rgba(0,0,0,.5));
+      animation: rabbitWalk 18s linear infinite;
+    }
+
+    .rabbit-body {
+      position: absolute;
+      left: 10px;
+      bottom: 3px;
+      width: 47px;
+      height: 30px;
+      border-radius: 55%;
+      background: #756a58;
+    }
+
+    .rabbit-head {
+      position: absolute;
+      left: 40px;
+      bottom: 19px;
+      width: 27px;
+      height: 25px;
+      border-radius: 50%;
+      background: #857965;
+    }
+
+    .rabbit-ear {
+      position: absolute;
+      left: 46px;
+      bottom: 39px;
+      width: 9px;
+      height: 28px;
+      border-radius: 70%;
+      transform: rotate(-8deg);
+      background: #817462;
+    }
+
+    .rabbit-ear-2 {
+      left: 57px;
+      bottom: 38px;
+      transform: rotate(12deg);
+    }
+
+    .rabbit-eye {
+      position: absolute;
+      left: 60px;
+      bottom: 31px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #050505;
+    }
+
+    .rabbit-tail {
+      position: absolute;
+      left: 2px;
+      bottom: 22px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #aaa08b;
+    }
+
+    /* Tanah depan */
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 11;
+      height: 17%;
+      background: linear-gradient(
+        to bottom,
+        #15351f,
+        #06150c 55%,
+        #020711
+      );
+      box-shadow: 0 -12px 25px rgba(0,0,0,.45);
+    }
+
+    .ground::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .15;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0 8px,
+        rgba(120,160,94,.12) 9px,
+        transparent 10px
+      );
+    }
+
+    /* Soundwave */
     .soundwave {
       position: absolute;
       left: 50%;
-      bottom: 42px;
-      z-index: 10;
+      bottom: 28px;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -230,12 +740,12 @@
       width: 125px;
       height: 72px;
       padding: 12px 15px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255,255,255,.25);
       border-radius: 22px;
-      background: rgba(10, 7, 35, 0.4);
+      background: rgba(10,7,35,.48);
       box-shadow:
-        0 0 25px rgba(128, 55, 255, 0.35),
-        inset 0 0 20px rgba(255, 255, 255, 0.05);
+        0 0 25px rgba(128,55,255,.35),
+        inset 0 0 20px rgba(255,255,255,.05);
       transform: translateX(-50%);
       backdrop-filter: blur(8px);
     }
@@ -244,24 +754,19 @@
       width: 10px;
       height: 28px;
       border-radius: 10px;
-      background: linear-gradient(
-        to top,
-        #8b35ff,
-        #c98cff 55%,
-        #ffffff
-      );
+      background: linear-gradient(to top, #8b35ff, #c98cff 55%, #fff);
       box-shadow:
         0 0 9px #a951ff,
-        0 0 16px rgba(255, 255, 255, 0.7);
+        0 0 16px rgba(255,255,255,.7);
       animation: sound 1s ease-in-out infinite;
     }
 
     .bar:nth-child(1) {
-      animation-delay: -0.45s;
+      animation-delay: -.45s;
     }
 
     .bar:nth-child(2) {
-      animation-delay: -0.2s;
+      animation-delay: -.2s;
     }
 
     .bar:nth-child(3) {
@@ -269,41 +774,36 @@
     }
 
     .bar:nth-child(4) {
-      animation-delay: -0.3s;
+      animation-delay: -.3s;
     }
 
     .bar:nth-child(5) {
-      animation-delay: -0.55s;
+      animation-delay: -.55s;
     }
 
-    /* Hills */
-    .hill-back {
-      position: absolute;
-      right: -10%;
-      bottom: 4%;
-      left: -10%;
-      z-index: 5;
-      height: 25%;
-      background: #0c1933;
-      border-radius: 50% 50% 0 0 / 70% 70% 0 0;
-    }
+    /* Animasi */
+    @keyframes blink {
+      0% {
+        opacity: .12;
+        transform: scale(.6);
+      }
 
-    .hills {
-      position: absolute;
-      right: -5%;
-      bottom: -18%;
-      left: -5%;
-      z-index: 6;
-      height: 38%;
-      background: #020711;
-      border-radius: 50% 50% 0 0 / 35% 35% 0 0;
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      100% {
+        opacity: .3;
+        transform: scale(.8);
+      }
     }
 
     @keyframes moonMove {
       0% {
         left: -140px;
         top: 28%;
-        transform: scale(0.75);
+        transform: scale(.75);
       }
 
       45% {
@@ -314,7 +814,7 @@
       100% {
         left: 110vw;
         top: 30%;
-        transform: scale(0.75);
+        transform: scale(.75);
       }
     }
 
@@ -328,21 +828,82 @@
       }
     }
 
-    @keyframes shootingStar {
-      0%,
-      70% {
-        left: -160px;
+    @keyframes batFly {
+      0% {
+        left: -100px;
         opacity: 0;
       }
 
-      75% {
+      8% {
         opacity: 1;
       }
 
-      90%,
+      35% {
+        transform: translateY(-25px) rotate(4deg);
+      }
+
+      65% {
+        transform: translateY(25px) rotate(-4deg);
+      }
+
+      92% {
+        opacity: 1;
+      }
+
       100% {
         left: 110vw;
         opacity: 0;
+        transform: translateY(-15px);
+      }
+    }
+
+    @keyframes wingLeft {
+      from {
+        transform: rotate(20deg) scaleY(.7);
+      }
+
+      to {
+        transform: rotate(-14deg) scaleY(1.15);
+      }
+    }
+
+    @keyframes wingRight {
+      from {
+        transform: scaleX(-1) rotate(20deg) scaleY(.7);
+      }
+
+      to {
+        transform: scaleX(-1) rotate(-14deg) scaleY(1.15);
+      }
+    }
+
+    @keyframes deerWalk {
+      0% {
+        left: -160px;
+      }
+
+      100% {
+        left: 110vw;
+      }
+    }
+
+    @keyframes rabbitWalk {
+      0% {
+        left: 110vw;
+      }
+
+      100% {
+        left: -120px;
+      }
+    }
+
+    @keyframes legMove {
+      from {
+        transform: rotate(13deg);
+      }
+
+      to {
+        transform: rotate(-13deg);
       }
     }
 
@@ -350,7 +911,7 @@
       0%,
       100% {
         height: 16px;
-        opacity: 0.7;
+        opacity: .7;
       }
 
       50% {
@@ -359,25 +920,45 @@
       }
     }
 
-    @keyframes twinkle {
-      from {
-        opacity: 0.4;
+    @media (max-width: 600px) {
+      .tree-1 {
+        left: -20px;
       }
 
-      to {
-        opacity: 1;
+      .tree-2 {
+        left: 12%;
+      }
+
+      .tree-3 {
+        right: 8%;
+      }
+
+      .tree-4 {
+        right: -25px;
+      }
+
+      .deer {
+        transform: scale(.52);
+        transform-origin: bottom left;
+      }
+
+      .rabbit {
+        transform: scale(.48);
+        transform-origin: bottom right;
+      }
+
+      .bat-8,
+      .bat-9,
+      .bat-10 {
+        display: none;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .moon,
-      .cloud,
-      .shooting-star,
-      .stars,
-      .stars::before,
-      .stars::after,
-      .bar {
-        animation: none;
+      *,
+      *::before,
+      *::after {
+        animation-play-state: paused !important;
       }
 
       .moon {
@@ -385,12 +966,12 @@
         top: 15%;
       }
 
-      .cloud {
-        left: 35%;
+      .deer {
+        left: 45%;
       }
 
-      .bar {
-        height: 30px;
+      .rabbit {
+        left: 30%;
       }
     }
   </style>
@@ -398,12 +979,37 @@
 
 <body>
   <main class="sky">
-    <div class="stars"></div>
 
+    <!-- Bintang -->
+    <div class="stars">
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+      <span class="star"></span>
+    </div>
+
+    <!-- Bulan -->
     <div class="moon"></div>
 
-    <div class="shooting-star"></div>
+    <!-- Kelelawar -->
+    <div class="bat bat-1"></div>
+    <div class="bat bat-2"></div>
+    <div class="bat bat-3"></div>
+    <div class="bat bat-4"></div>
+    <div class="bat bat-5"></div>
+    <div class="bat bat-6"></div>
+    <div class="bat bat-7"></div>
+    <div class="bat bat-8"></div>
+    <div class="bat bat-9"></div>
+    <div class="bat bat-10"></div>
 
+    <!-- Awan -->
     <div class="cloud cloud-1">
       <div class="cloud-body"></div>
       <div class="puff puff-1"></div>
@@ -428,9 +1034,49 @@
       <div class="puff puff-4"></div>
     </div>
 
-    <div class="hill-back"></div>
-    <div class="hills"></div>
+    <!-- Bukit rendah dan datar -->
+    <div class="forest-hill"></div>
+    <div class="distant-trees"></div>
 
+    <!-- Pohon -->
+    <div class="tree tree-1"></div>
+    <div class="tree tree-2"></div>
+    <div class="tree tree-3"></div>
+    <div class="tree tree-4"></div>
+
+    <!-- Semak -->
+    <div class="bush bush-1"></div>
+    <div class="bush bush-2"></div>
+    <div class="bush bush-3"></div>
+
+    <!-- Rusa berjalan -->
+    <div class="deer">
+      <div class="deer-body"></div>
+      <div class="deer-neck"></div>
+      <div class="deer-head"></div>
+      <div class="deer-ear"></div>
+      <div class="deer-antler"></div>
+      <div class="deer-leg leg-1"></div>
+      <div class="deer-leg leg-2"></div>
+      <div class="deer-leg leg-3"></div>
+      <div class="deer-leg leg-4"></div>
+      <div class="deer-tail"></div>
+    </div>
+
+    <!-- Kelinci berjalan -->
+    <div class="rabbit">
+      <div class="rabbit-body"></div>
+      <div class="rabbit-head"></div>
+      <div class="rabbit-ear"></div>
+      <div class="rabbit-ear rabbit-ear-2"></div>
+      <div class="rabbit-eye"></div>
+      <div class="rabbit-tail"></div>
+    </div>
+
+    <!-- Tanah depan -->
+    <div class="ground"></div>
+
+    <!-- Soundwave -->
     <div class="soundwave" aria-label="Animated sound wave">
       <span class="bar"></span>
       <span class="bar"></span>
@@ -438,6 +1084,7 @@
       <span class="bar"></span>
       <span class="bar"></span>
     </div>
+
   </main>
 </body>
 </html>
