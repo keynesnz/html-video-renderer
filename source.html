@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Animated HDR Burgundy Wallpaper</title>
+  <title>Animated Burgundy Wallpaper</title>
 
   <style>
     * {
@@ -13,22 +13,21 @@
     html,
     body {
       margin: 0;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: #030005;
-      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
-      min-height: 100vh;
       display: grid;
       place-items: center;
-      overflow: hidden;
     }
 
     .preview {
       position: relative;
       width: min(100vw, 56.25vh);
-      aspect-ratio: 2160 / 3840;
+      height: min(177.7778vw, 100vh);
       overflow: hidden;
       background: #030005;
       box-shadow: 0 0 80px rgba(255, 25, 115, 0.2);
@@ -41,126 +40,39 @@
       height: 100%;
       display: block;
     }
-
-    .content {
-      position: absolute;
-      z-index: 10;
-      left: 8%;
-      right: 8%;
-      bottom: 8%;
-      text-align: center;
-      color: white;
-    }
-
-    h1 {
-      margin: 0 0 12px;
-      color: #ffe0eb;
-      font-size: clamp(22px, 5vw, 60px);
-      font-weight: 300;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      text-shadow:
-        0 0 12px #ff3e88,
-        0 0 30px rgba(255, 62, 136, 0.9);
-    }
-
-    p {
-      margin: 0 0 24px;
-      color: rgba(255, 230, 240, 0.8);
-      font-size: clamp(11px, 2vw, 18px);
-    }
-
-    button {
-      border: 1px solid #ff9abd;
-      border-radius: 6px;
-      padding: 15px 28px;
-      color: white;
-      background: linear-gradient(135deg, #92133e, #ed3476);
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow:
-        0 0 14px rgba(255, 48, 125, 0.9),
-        0 0 38px rgba(255, 48, 125, 0.4);
-      transition: 0.25s ease;
-    }
-
-    button:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow:
-        0 0 20px #ff3e88,
-        0 0 60px rgba(255, 48, 125, 0.75);
-    }
-
-    button:active {
-      transform: scale(0.97);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-      transform: none;
-    }
-
-    #status {
-      min-height: 20px;
-      margin-top: 15px;
-      color: #ffc2d8;
-      font-size: 12px;
-    }
   </style>
 </head>
 
 <body>
   <main class="preview">
     <canvas id="wallpaper"></canvas>
-
-    <section class="content">
-      <h1>HDR Burgundy</h1>
-      <p>Animated wallpaper · 2160 × 3840 px</p>
-
-      <button id="downloadButton">
-        Download MP4
-      </button>
-
-      <div id="status"></div>
-    </section>
   </main>
 
   <script type="module">
-    import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm";
-    import { toBlobURL } from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/+esm";
+    import { FFmpeg } from
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm";
+
+    import { toBlobURL } from
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/+esm";
 
     const canvas = document.getElementById("wallpaper");
+
     const ctx = canvas.getContext("2d", {
       alpha: false,
       colorSpace: "srgb",
       desynchronized: false
     });
 
-    const button = document.getElementById("downloadButton");
-    const statusText = document.getElementById("status");
-
-    /*
-      Resolusi output.
-      Jangan diubah jika ingin output 2160 × 3840.
-    */
     const WIDTH = 2160;
     const HEIGHT = 3840;
-
     const FPS = 30;
-    const DURATION_SECONDS = 10;
+    const DURATION_SECONDS = 15;
     const TOTAL_FRAMES = FPS * DURATION_SECONDS;
 
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
 
     let animationFrame;
-    let startTime = performance.now();
-
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
 
     function drawBackground(time) {
       const pulse = Math.sin(time * 0.0012) * 0.5 + 0.5;
@@ -211,8 +123,11 @@
       ctx.fillStyle = centerGlow;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
+      const lowerX =
+        WIDTH * (0.82 + Math.sin(time * 0.0005) * 0.08);
+
       const lowerGlow = ctx.createRadialGradient(
-        WIDTH * (0.82 + Math.sin(time * 0.0005) * 0.08),
+        lowerX,
         HEIGHT * 0.82,
         0,
         WIDTH * 0.82,
@@ -234,41 +149,60 @@
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }
 
-    function drawCrystal(x, y, w, h, rotation, opacity, time) {
+    function drawCrystal(
+      x,
+      y,
+      w,
+      h,
+      rotation,
+      opacity,
+      time
+    ) {
       ctx.save();
 
-      const movementX = Math.sin(time * 0.00035 + x) * 18;
-      const movementY = Math.cos(time * 0.0004 + y) * 20;
+      const movementX =
+        Math.sin(time * 0.00035 + x) * 18;
+
+      const movementY =
+        Math.cos(time * 0.0004 + y) * 20;
+
       const rotationAnimation =
         Math.sin(time * 0.00025 + x) * 0.7;
 
-      ctx.translate(x + movementX, y + movementY);
-      ctx.rotate(((rotation + rotationAnimation) * Math.PI) / 180);
+      ctx.translate(
+        x + movementX,
+        y + movementY
+      );
+
+      ctx.rotate(
+        ((rotation + rotationAnimation) * Math.PI) / 180
+      );
+
       ctx.transform(1, 0, -0.12, 1, 0, 0);
 
-      const crystalGradient = ctx.createLinearGradient(
+      const gradient = ctx.createLinearGradient(
         0,
         0,
         w,
         h
       );
 
-      crystalGradient.addColorStop(
+      gradient.addColorStop(
         0,
         `rgba(255, 100, 160, ${opacity})`
       );
 
-      crystalGradient.addColorStop(
+      gradient.addColorStop(
         0.45,
         "rgba(255, 255, 255, 0.035)"
       );
 
-      crystalGradient.addColorStop(
+      gradient.addColorStop(
         1,
         "rgba(0, 0, 0, 0.32)"
       );
 
-      ctx.fillStyle = crystalGradient;
+      ctx.fillStyle = gradient;
       ctx.strokeStyle = "rgba(255, 197, 220, 0.42)";
       ctx.lineWidth = 3;
 
@@ -285,10 +219,17 @@
 
       ctx.fill();
       ctx.stroke();
+
       ctx.restore();
     }
 
-    function drawBeam(y, angle, opacity, thickness, time) {
+    function drawBeam(
+      y,
+      angle,
+      opacity,
+      thickness,
+      time
+    ) {
       ctx.save();
 
       const animatedY =
@@ -297,43 +238,43 @@
       ctx.translate(WIDTH / 2, animatedY);
       ctx.rotate((angle * Math.PI) / 180);
 
-      const beamGradient = ctx.createLinearGradient(
+      const gradient = ctx.createLinearGradient(
         -WIDTH,
         0,
         WIDTH,
         0
       );
 
-      const beamPulse =
+      const pulse =
         opacity *
         (0.75 + Math.sin(time * 0.002 + y) * 0.25);
 
-      beamGradient.addColorStop(
+      gradient.addColorStop(
         0,
         "rgba(255, 48, 125, 0)"
       );
 
-      beamGradient.addColorStop(
+      gradient.addColorStop(
         0.25,
-        `rgba(255, 48, 125, ${beamPulse})`
+        `rgba(255, 48, 125, ${pulse})`
       );
 
-      beamGradient.addColorStop(
+      gradient.addColorStop(
         0.5,
         "rgba(255, 220, 235, 1)"
       );
 
-      beamGradient.addColorStop(
+      gradient.addColorStop(
         0.75,
-        `rgba(255, 48, 125, ${beamPulse})`
+        `rgba(255, 48, 125, ${pulse})`
       );
 
-      beamGradient.addColorStop(
+      gradient.addColorStop(
         1,
         "rgba(255, 48, 125, 0)"
       );
 
-      ctx.fillStyle = beamGradient;
+      ctx.fillStyle = gradient;
       ctx.shadowColor = "#ff287a";
       ctx.shadowBlur = 35;
 
@@ -347,14 +288,20 @@
       ctx.restore();
     }
 
-    function drawStar(x, y, radius, time, index) {
+    function drawStar(
+      x,
+      y,
+      radius,
+      time,
+      index
+    ) {
       const scale =
         0.8 +
         Math.sin(time * 0.002 + index * 1.4) * 0.35;
 
       const r = radius * scale;
 
-      const starGlow = ctx.createRadialGradient(
+      const glow = ctx.createRadialGradient(
         x,
         y,
         0,
@@ -363,27 +310,29 @@
         r * 8
       );
 
-      starGlow.addColorStop(
+      glow.addColorStop(
         0,
         "rgba(255, 255, 255, 1)"
       );
 
-      starGlow.addColorStop(
+      glow.addColorStop(
         0.1,
         "rgba(255, 173, 205, 1)"
       );
 
-      starGlow.addColorStop(
+      glow.addColorStop(
         1,
         "rgba(255, 36, 116, 0)"
       );
 
-      ctx.fillStyle = starGlow;
+      ctx.fillStyle = glow;
+
       ctx.beginPath();
       ctx.arc(x, y, r * 8, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = "#ffffff";
+
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -398,7 +347,11 @@
 
       const gridSize = 90;
 
-      for (let x = 0; x <= WIDTH; x += gridSize) {
+      for (
+        let x = 0;
+        x <= WIDTH;
+        x += gridSize
+      ) {
         ctx.beginPath();
         ctx.moveTo(x, HEIGHT * 0.12);
         ctx.lineTo(x, HEIGHT * 0.88);
@@ -449,10 +402,6 @@
     }
 
     function drawGrain() {
-      /*
-        Grain dibuat ringan supaya encoding MP4
-        tidak menghasilkan file terlalu besar.
-      */
       ctx.save();
 
       ctx.globalAlpha = 0.045;
@@ -473,7 +422,7 @@
       ctx.restore();
     }
 
-    function render(time) {
+    function drawFrame(time) {
       ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
       drawBackground(time);
@@ -567,8 +516,12 @@
       drawGrid();
       drawGrain();
       drawVignette();
+    }
 
-      animationFrame = requestAnimationFrame(render);
+    function previewRender(time) {
+      drawFrame(time);
+      animationFrame =
+        requestAnimationFrame(previewRender);
     }
 
     function sleep(ms) {
@@ -579,12 +532,6 @@
 
     async function loadFFmpeg() {
       const ffmpeg = new FFmpeg();
-
-      ffmpeg.on("progress", ({ progress }) => {
-        const percent = Math.round(progress * 100);
-        statusText.textContent =
-          `Mengonversi ke MP4: ${percent}%`;
-      });
 
       const baseURL =
         "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
@@ -607,12 +554,6 @@
     async function recordAnimation() {
       const stream = canvas.captureStream(FPS);
 
-      /*
-        WebM digunakan sebagai format rekaman sementara
-        karena MediaRecorder browser umumnya merekam
-        canvas ke WebM. Setelah itu FFmpeg mengubahnya
-        menjadi MP4 H.264.
-      */
       const recorder = new MediaRecorder(stream, {
         mimeType: "video/webm;codecs=vp9",
         videoBitsPerSecond: 45_000_000
@@ -621,7 +562,10 @@
       const chunks = [];
 
       recorder.ondataavailable = event => {
-        if (event.data && event.data.size > 0) {
+        if (
+          event.data &&
+          event.data.size > 0
+        ) {
           chunks.push(event.data);
         }
       };
@@ -634,16 +578,15 @@
 
       const frameDuration = 1000 / FPS;
 
-      for (let frame = 0; frame < TOTAL_FRAMES; frame++) {
+      for (
+        let frame = 0;
+        frame < TOTAL_FRAMES;
+        frame++
+      ) {
         const time = frame * frameDuration;
 
-        render(time);
+        drawFrame(time);
 
-        /*
-          Memberi waktu browser untuk merekam frame.
-          Promise ini membantu menjaga jumlah frame
-          tetap mendekati FPS yang ditentukan.
-        */
         await sleep(frameDuration);
       }
 
@@ -660,9 +603,6 @@
     }
 
     async function convertToMP4(webmBlob) {
-      statusText.textContent =
-        "Memuat encoder MP4...";
-
       const ffmpeg = await loadFFmpeg();
 
       const inputData =
@@ -674,9 +614,6 @@
         "input.webm",
         inputData
       );
-
-      statusText.textContent =
-        "Encoding MP4 kualitas tinggi...";
 
       await ffmpeg.exec([
         "-i",
@@ -691,8 +628,11 @@
         "-crf",
         "16",
 
+        "-profile:v",
+        "high444",
+
         "-pix_fmt",
-        "yuv420p",
+        "yuv444p",
 
         "-movflags",
         "+faststart",
@@ -700,14 +640,18 @@
         "-r",
         String(FPS),
 
+        "-t",
+        String(DURATION_SECONDS),
+
         "-an",
 
-        "hdr-burgundy-wallpaper-2160x3840.mp4"
+        "hdr-burgundy-wallpaper-2160x3840-15s-yuv444.mp4"
       ]);
 
-      const outputData = await ffmpeg.readFile(
-        "hdr-burgundy-wallpaper-2160x3840.mp4"
-      );
+      const outputData =
+        await ffmpeg.readFile(
+          "hdr-burgundy-wallpaper-2160x3840-15s-yuv444.mp4"
+        );
 
       return new Blob(
         [outputData.buffer],
@@ -718,8 +662,11 @@
     }
 
     function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const url =
+        URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
 
       link.href = url;
       link.download = filename;
@@ -733,41 +680,8 @@
       }, 3000);
     }
 
-    button.addEventListener("click", async () => {
-      button.disabled = true;
-      statusText.textContent =
-        "Merekam animasi 2160 × 3840...";
-
-      try {
-        cancelAnimationFrame(animationFrame);
-
-        const webmBlob = await recordAnimation();
-        const mp4Blob = await convertToMP4(webmBlob);
-
-        downloadBlob(
-          mp4Blob,
-          "hdr-burgundy-wallpaper-2160x3840.mp4"
-        );
-
-        statusText.textContent =
-          "MP4 selesai dan sedang diunduh.";
-      } catch (error) {
-        console.error(error);
-
-        statusText.textContent =
-          "Gagal membuat MP4. Cek Console browser.";
-
-        alert(
-          "Encoding gagal. Resolusi 2160 × 3840 membutuhkan RAM dan CPU besar."
-        );
-      } finally {
-        button.disabled = false;
-        startTime = performance.now();
-        animationFrame = requestAnimationFrame(render);
-      }
-    });
-
-    animationFrame = requestAnimationFrame(render);
+    animationFrame =
+      requestAnimationFrame(previewRender);
   </script>
 </body>
 </html>
