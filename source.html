@@ -1,687 +1,177 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Animated Burgundy Wallpaper</title>
+<meta charset="UTF-8">
+<title>Premier League — Mirror Flip Reveal</title>
+<style>
+  /* ===== EDIT THIS ONE LINE TO CHANGE THE BACKGROUND COLOR ===== */
+  :root {
+    --bg-color: #00FF00; /* standard chroma-key green for greenscreen */
+  }
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg-color);
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
 
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #030005;
-    }
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+  }
 
-    body {
-      display: grid;
-      place-items: center;
-    }
+  .glow {
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    max-width: 700px;
+    max-height: 700px;
+    background: radial-gradient(circle, rgba(47,128,255,0.18) 0%, rgba(55,0,60,0) 70%);
+    border-radius: 50%;
+    animation: glowPulse 2.4s ease-out forwards;
+  }
 
-    .preview {
-      position: relative;
-      width: min(100vw, 56.25vh);
-      height: min(177.7778vw, 100vh);
-      overflow: hidden;
-      background: #030005;
-      box-shadow: 0 0 80px rgba(255, 25, 115, 0.2);
-    }
+  @keyframes glowPulse {
+    0%   { opacity: 0; transform: scale(0.4); }
+    35%  { opacity: 1; }
+    100% { opacity: 0.6; transform: scale(1); }
+  }
 
-    canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
+  .word {
+    position: relative;
+    display: flex;
+    gap: 0.02em;
+  }
+
+  /* Apple-style type: tight tracking, heavy weight, no letterspacing tricks */
+  #premier .letter {
+    font-weight: 700;
+    font-size: clamp(1.5rem, 5.5vw, 4rem);
+    letter-spacing: -0.03em;
+    color: #FFFFFF;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: fadeUp 0.6s cubic-bezier(0.2,1,0.3,1) forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #league .letter {
+    display: inline-block;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 10vw, 8rem);
+    letter-spacing: -0.04em;
+    color: #6FC3FF;
+    text-shadow: 0 0 36px rgba(111,195,255,0.45);
+    transform-origin: 50% 50%;
+    transform: scaleX(-1);
+    animation-name: unflip;
+    animation-duration: 0.65s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes unflip {
+    0% {
+      transform: scaleX(-1) rotateY(0deg);
     }
-  </style>
+    50% {
+      transform: scaleX(0) rotateY(90deg);
+    }
+    100% {
+      transform: scaleX(1) rotateY(0deg);
+    }
+  }
+
+  .bar {
+    width: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #FFFFFF, #6FC3FF);
+    border-radius: 3px;
+    animation: barGrow 0.6s ease-out forwards;
+    animation-delay: 2.4s;
+    opacity: 0;
+  }
+
+  @keyframes barGrow {
+    0%   { width: 0; opacity: 0; }
+    10%  { opacity: 1; }
+    100% { width: min(60vw, 420px); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #premier .letter, #league .letter, .bar, .glow {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      width: auto !important;
+    }
+  }
+</style>
 </head>
-
 <body>
-  <main class="preview">
-    <canvas id="wallpaper"></canvas>
-  </main>
+  <div class="stage">
+    <div class="glow"></div>
+    <div class="word" id="premier"></div>
+    <div class="word" id="league"></div>
+    <div class="bar"></div>
+  </div>
 
-  <script type="module">
-    import { FFmpeg } from
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm";
+  <script>
+    const premierText = "PREMIER";
+    const leagueText = "LEAGUE";
 
-    import { toBlobURL } from
-      "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/+esm";
+    const premierEl = document.getElementById('premier');
+    const leagueEl = document.getElementById('league');
 
-    const canvas = document.getElementById("wallpaper");
-
-    const ctx = canvas.getContext("2d", {
-      alpha: false,
-      colorSpace: "srgb",
-      desynchronized: false
+    [...premierText].forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.textContent = ch;
+      span.className = 'letter';
+      span.style.animationDelay = (i * 0.04) + 's';
+      premierEl.appendChild(span);
     });
 
-    const WIDTH = 2160;
-    const HEIGHT = 3840;
-    const FPS = 30;
-    const DURATION_SECONDS = 15;
-    const TOTAL_FRAMES = FPS * DURATION_SECONDS;
-
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-
-    let animationFrame;
-
-    function drawBackground(time) {
-      const pulse = Math.sin(time * 0.0012) * 0.5 + 0.5;
-
-      const background = ctx.createRadialGradient(
-        WIDTH * 0.5,
-        HEIGHT * (0.29 + pulse * 0.025),
-        0,
-        WIDTH * 0.5,
-        HEIGHT * 0.45,
-        HEIGHT * 0.87
-      );
-
-      background.addColorStop(0, "#b7356e");
-      background.addColorStop(0.25, "#71183e");
-      background.addColorStop(0.57, "#350a1c");
-      background.addColorStop(1, "#0b0107");
-
-      ctx.fillStyle = background;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      const glowRadius = WIDTH * (0.65 + pulse * 0.16);
-
-      const centerGlow = ctx.createRadialGradient(
-        WIDTH * 0.5,
-        HEIGHT * 0.28,
-        0,
-        WIDTH * 0.5,
-        HEIGHT * 0.28,
-        glowRadius
-      );
-
-      centerGlow.addColorStop(
-        0,
-        `rgba(255, 73, 139, ${0.42 + pulse * 0.18})`
-      );
-
-      centerGlow.addColorStop(
-        0.3,
-        "rgba(211, 37, 99, 0.25)"
-      );
-
-      centerGlow.addColorStop(
-        1,
-        "rgba(211, 37, 99, 0)"
-      );
-
-      ctx.fillStyle = centerGlow;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      const lowerX =
-        WIDTH * (0.82 + Math.sin(time * 0.0005) * 0.08);
-
-      const lowerGlow = ctx.createRadialGradient(
-        lowerX,
-        HEIGHT * 0.82,
-        0,
-        WIDTH * 0.82,
-        HEIGHT * 0.82,
-        WIDTH * 0.8
-      );
-
-      lowerGlow.addColorStop(
-        0,
-        "rgba(155, 17, 65, 0.62)"
-      );
-
-      lowerGlow.addColorStop(
-        1,
-        "rgba(55, 2, 20, 0)"
-      );
-
-      ctx.fillStyle = lowerGlow;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    }
-
-    function drawCrystal(
-      x,
-      y,
-      w,
-      h,
-      rotation,
-      opacity,
-      time
-    ) {
-      ctx.save();
-
-      const movementX =
-        Math.sin(time * 0.00035 + x) * 18;
-
-      const movementY =
-        Math.cos(time * 0.0004 + y) * 20;
-
-      const rotationAnimation =
-        Math.sin(time * 0.00025 + x) * 0.7;
-
-      ctx.translate(
-        x + movementX,
-        y + movementY
-      );
-
-      ctx.rotate(
-        ((rotation + rotationAnimation) * Math.PI) / 180
-      );
-
-      ctx.transform(1, 0, -0.12, 1, 0, 0);
-
-      const gradient = ctx.createLinearGradient(
-        0,
-        0,
-        w,
-        h
-      );
-
-      gradient.addColorStop(
-        0,
-        `rgba(255, 100, 160, ${opacity})`
-      );
-
-      gradient.addColorStop(
-        0.45,
-        "rgba(255, 255, 255, 0.035)"
-      );
-
-      gradient.addColorStop(
-        1,
-        "rgba(0, 0, 0, 0.32)"
-      );
-
-      ctx.fillStyle = gradient;
-      ctx.strokeStyle = "rgba(255, 197, 220, 0.42)";
-      ctx.lineWidth = 3;
-
-      ctx.shadowColor = "rgba(255, 42, 125, 0.28)";
-      ctx.shadowBlur = 55;
-
-      ctx.beginPath();
-      ctx.moveTo(0, h * 0.2);
-      ctx.lineTo(w * 0.23, 0);
-      ctx.lineTo(w, h * 0.22);
-      ctx.lineTo(w * 0.77, h);
-      ctx.lineTo(0, h * 0.8);
-      ctx.closePath();
-
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    function drawBeam(
-      y,
-      angle,
-      opacity,
-      thickness,
-      time
-    ) {
-      ctx.save();
-
-      const animatedY =
-        y + Math.sin(time * 0.001 + y) * 26;
-
-      ctx.translate(WIDTH / 2, animatedY);
-      ctx.rotate((angle * Math.PI) / 180);
-
-      const gradient = ctx.createLinearGradient(
-        -WIDTH,
-        0,
-        WIDTH,
-        0
-      );
-
-      const pulse =
-        opacity *
-        (0.75 + Math.sin(time * 0.002 + y) * 0.25);
-
-      gradient.addColorStop(
-        0,
-        "rgba(255, 48, 125, 0)"
-      );
-
-      gradient.addColorStop(
-        0.25,
-        `rgba(255, 48, 125, ${pulse})`
-      );
-
-      gradient.addColorStop(
-        0.5,
-        "rgba(255, 220, 235, 1)"
-      );
-
-      gradient.addColorStop(
-        0.75,
-        `rgba(255, 48, 125, ${pulse})`
-      );
-
-      gradient.addColorStop(
-        1,
-        "rgba(255, 48, 125, 0)"
-      );
-
-      ctx.fillStyle = gradient;
-      ctx.shadowColor = "#ff287a";
-      ctx.shadowBlur = 35;
-
-      ctx.fillRect(
-        -WIDTH,
-        0,
-        WIDTH * 2,
-        thickness
-      );
-
-      ctx.restore();
-    }
-
-    function drawStar(
-      x,
-      y,
-      radius,
-      time,
-      index
-    ) {
-      const scale =
-        0.8 +
-        Math.sin(time * 0.002 + index * 1.4) * 0.35;
-
-      const r = radius * scale;
-
-      const glow = ctx.createRadialGradient(
-        x,
-        y,
-        0,
-        x,
-        y,
-        r * 8
-      );
-
-      glow.addColorStop(
-        0,
-        "rgba(255, 255, 255, 1)"
-      );
-
-      glow.addColorStop(
-        0.1,
-        "rgba(255, 173, 205, 1)"
-      );
-
-      glow.addColorStop(
-        1,
-        "rgba(255, 36, 116, 0)"
-      );
-
-      ctx.fillStyle = glow;
-
-      ctx.beginPath();
-      ctx.arc(x, y, r * 8, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#ffffff";
-
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawGrid() {
-      ctx.save();
-
-      ctx.globalAlpha = 0.1;
-      ctx.strokeStyle = "#ffb4cf";
-      ctx.lineWidth = 2;
-
-      const gridSize = 90;
-
-      for (
-        let x = 0;
-        x <= WIDTH;
-        x += gridSize
-      ) {
-        ctx.beginPath();
-        ctx.moveTo(x, HEIGHT * 0.12);
-        ctx.lineTo(x, HEIGHT * 0.88);
-        ctx.stroke();
-      }
-
-      for (
-        let y = HEIGHT * 0.12;
-        y <= HEIGHT * 0.88;
-        y += gridSize
-      ) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(WIDTH, y);
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    }
-
-    function drawVignette() {
-      const vignette = ctx.createRadialGradient(
-        WIDTH / 2,
-        HEIGHT / 2,
-        WIDTH * 0.18,
-        WIDTH / 2,
-        HEIGHT / 2,
-        HEIGHT * 0.78
-      );
-
-      vignette.addColorStop(
-        0,
-        "rgba(0, 0, 0, 0)"
-      );
-
-      vignette.addColorStop(
-        0.72,
-        "rgba(0, 0, 0, 0.13)"
-      );
-
-      vignette.addColorStop(
-        1,
-        "rgba(0, 0, 0, 0.72)"
-      );
-
-      ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    }
-
-    function drawGrain() {
-      ctx.save();
-
-      ctx.globalAlpha = 0.045;
-
-      for (let i = 0; i < 1400; i++) {
-        const x = Math.random() * WIDTH;
-        const y = Math.random() * HEIGHT;
-        const size = Math.random() * 3 + 1;
-
-        ctx.fillStyle =
-          Math.random() > 0.5
-            ? "#ffffff"
-            : "#000000";
-
-        ctx.fillRect(x, y, size, size);
-      }
-
-      ctx.restore();
-    }
-
-    function drawFrame(time) {
-      ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-      drawBackground(time);
-
-      drawCrystal(
-        -WIDTH * 0.27,
-        HEIGHT * 0.1,
-        WIDTH * 0.82,
-        HEIGHT * 0.27,
-        30,
-        0.18,
-        time
-      );
-
-      drawCrystal(
-        WIDTH * 0.4,
-        HEIGHT * 0.36,
-        WIDTH * 0.9,
-        HEIGHT * 0.29,
-        -32,
-        0.15,
-        time
-      );
-
-      drawCrystal(
-        -WIDTH * 0.2,
-        HEIGHT * 0.63,
-        WIDTH * 0.78,
-        HEIGHT * 0.23,
-        25,
-        0.1,
-        time
-      );
-
-      drawBeam(
-        HEIGHT * 0.395,
-        -30,
-        1,
-        7,
-        time
-      );
-
-      drawBeam(
-        HEIGHT * 0.415,
-        -30,
-        0.42,
-        2,
-        time
-      );
-
-      drawBeam(
-        HEIGHT * 0.7,
-        24,
-        0.45,
-        5,
-        time
-      );
-
-      drawStar(
-        WIDTH * 0.22,
-        HEIGHT * 0.17,
-        10,
-        time,
-        1
-      );
-
-      drawStar(
-        WIDTH * 0.82,
-        HEIGHT * 0.28,
-        9,
-        time,
-        2
-      );
-
-      drawStar(
-        WIDTH * 0.2,
-        HEIGHT * 0.63,
-        8,
-        time,
-        3
-      );
-
-      drawStar(
-        WIDTH * 0.76,
-        HEIGHT * 0.8,
-        9,
-        time,
-        4
-      );
-
-      drawGrid();
-      drawGrain();
-      drawVignette();
-    }
-
-    function previewRender(time) {
-      drawFrame(time);
-      animationFrame =
-        requestAnimationFrame(previewRender);
-    }
-
-    function sleep(ms) {
-      return new Promise(resolve => {
-        setTimeout(resolve, ms);
+    const premierDuration = premierText.length * 0.04 + 0.6;
+    [...leagueText].forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.textContent = ch;
+      span.className = 'letter';
+      span.style.animationDelay = (premierDuration + 0.3 + i * 0.16) + 's';
+      leagueEl.appendChild(span);
+    });
+
+    function replay() {
+      document.querySelectorAll('#premier .letter, #league .letter').forEach(el => {
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = '';
       });
+      const bar = document.querySelector('.bar');
+      bar.style.animation = 'none';
+      void bar.offsetWidth;
+      bar.style.animation = '';
+      const glow = document.querySelector('.glow');
+      glow.style.animation = 'none';
+      void glow.offsetWidth;
+      glow.style.animation = '';
     }
-
-    async function loadFFmpeg() {
-      const ffmpeg = new FFmpeg();
-
-      const baseURL =
-        "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.js`,
-          "text/javascript"
-        ),
-
-        wasmURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.wasm`,
-          "application/wasm"
-        )
-      });
-
-      return ffmpeg;
-    }
-
-    async function recordAnimation() {
-      const stream = canvas.captureStream(FPS);
-
-      const recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp9",
-        videoBitsPerSecond: 45_000_000
-      });
-
-      const chunks = [];
-
-      recorder.ondataavailable = event => {
-        if (
-          event.data &&
-          event.data.size > 0
-        ) {
-          chunks.push(event.data);
-        }
-      };
-
-      const stopped = new Promise(resolve => {
-        recorder.onstop = resolve;
-      });
-
-      recorder.start(1000);
-
-      const frameDuration = 1000 / FPS;
-
-      for (
-        let frame = 0;
-        frame < TOTAL_FRAMES;
-        frame++
-      ) {
-        const time = frame * frameDuration;
-
-        drawFrame(time);
-
-        await sleep(frameDuration);
-      }
-
-      recorder.stop();
-      await stopped;
-
-      stream.getTracks().forEach(track => {
-        track.stop();
-      });
-
-      return new Blob(chunks, {
-        type: "video/webm"
-      });
-    }
-
-    async function convertToMP4(webmBlob) {
-      const ffmpeg = await loadFFmpeg();
-
-      const inputData =
-        new Uint8Array(
-          await webmBlob.arrayBuffer()
-        );
-
-      await ffmpeg.writeFile(
-        "input.webm",
-        inputData
-      );
-
-      await ffmpeg.exec([
-        "-i",
-        "input.webm",
-
-        "-c:v",
-        "libx264",
-
-        "-preset",
-        "slow",
-
-        "-crf",
-        "16",
-
-        "-profile:v",
-        "high444",
-
-        "-pix_fmt",
-        "yuv444p",
-
-        "-movflags",
-        "+faststart",
-
-        "-r",
-        String(FPS),
-
-        "-t",
-        String(DURATION_SECONDS),
-
-        "-an",
-
-        "hdr-burgundy-wallpaper-2160x3840-15s-yuv444.mp4"
-      ]);
-
-      const outputData =
-        await ffmpeg.readFile(
-          "hdr-burgundy-wallpaper-2160x3840-15s-yuv444.mp4"
-        );
-
-      return new Blob(
-        [outputData.buffer],
-        {
-          type: "video/mp4"
-        }
-      );
-    }
-
-    function downloadBlob(blob, filename) {
-      const url =
-        URL.createObjectURL(blob);
-
-      const link =
-        document.createElement("a");
-
-      link.href = url;
-      link.download = filename;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 3000);
-    }
-
-    animationFrame =
-      requestAnimationFrame(previewRender);
+    setInterval(replay, 5000);
   </script>
 </body>
 </html>
