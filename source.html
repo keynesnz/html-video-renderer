@@ -1,177 +1,525 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Premier League — Mirror Flip Reveal</title>
-<style>
-  /* ===== EDIT THIS ONE LINE TO CHANGE THE BACKGROUND COLOR ===== */
-  :root {
-    --bg-color: #00FF00; /* standard chroma-key green for greenscreen */
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Full Screen Branching Lightning</title>
 
-  html, body {
-    margin: 0;
-    height: 100%;
-    background: var(--bg-color);
-    overflow: hidden;
-  }
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  }
-
-  .stage {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-  }
-
-  .glow {
-    position: absolute;
-    width: 60vw;
-    height: 60vw;
-    max-width: 700px;
-    max-height: 700px;
-    background: radial-gradient(circle, rgba(47,128,255,0.18) 0%, rgba(55,0,60,0) 70%);
-    border-radius: 50%;
-    animation: glowPulse 2.4s ease-out forwards;
-  }
-
-  @keyframes glowPulse {
-    0%   { opacity: 0; transform: scale(0.4); }
-    35%  { opacity: 1; }
-    100% { opacity: 0.6; transform: scale(1); }
-  }
-
-  .word {
-    position: relative;
-    display: flex;
-    gap: 0.02em;
-  }
-
-  /* Apple-style type: tight tracking, heavy weight, no letterspacing tricks */
-  #premier .letter {
-    font-weight: 700;
-    font-size: clamp(1.5rem, 5.5vw, 4rem);
-    letter-spacing: -0.03em;
-    color: #FFFFFF;
-    opacity: 0;
-    transform: translateY(18px);
-    animation: fadeUp 0.6s cubic-bezier(0.2,1,0.3,1) forwards;
-  }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  #league .letter {
-    display: inline-block;
-    font-weight: 800;
-    font-size: clamp(2.4rem, 10vw, 8rem);
-    letter-spacing: -0.04em;
-    color: #6FC3FF;
-    text-shadow: 0 0 36px rgba(111,195,255,0.45);
-    transform-origin: 50% 50%;
-    transform: scaleX(-1);
-    animation-name: unflip;
-    animation-duration: 0.65s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes unflip {
-    0% {
-      transform: scaleX(-1) rotateY(0deg);
+  <style>
+    * {
+      box-sizing: border-box;
     }
-    50% {
-      transform: scaleX(0) rotateY(90deg);
-    }
-    100% {
-      transform: scaleX(1) rotateY(0deg);
-    }
-  }
 
-  .bar {
-    width: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #FFFFFF, #6FC3FF);
-    border-radius: 3px;
-    animation: barGrow 0.6s ease-out forwards;
-    animation-delay: 2.4s;
-    opacity: 0;
-  }
-
-  @keyframes barGrow {
-    0%   { width: 0; opacity: 0; }
-    10%  { opacity: 1; }
-    100% { width: min(60vw, 420px); opacity: 1; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #premier .letter, #league .letter, .bar, .glow {
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-      width: auto !important;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #030106;
     }
-  }
-</style>
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="stage">
-    <div class="glow"></div>
-    <div class="word" id="premier"></div>
-    <div class="word" id="league"></div>
-    <div class="bar"></div>
-  </div>
+  <canvas id="wallpaper"></canvas>
 
   <script>
-    const premierText = "PREMIER";
-    const leagueText = "LEAGUE";
-
-    const premierEl = document.getElementById('premier');
-    const leagueEl = document.getElementById('league');
-
-    [...premierText].forEach((ch, i) => {
-      const span = document.createElement('span');
-      span.textContent = ch;
-      span.className = 'letter';
-      span.style.animationDelay = (i * 0.04) + 's';
-      premierEl.appendChild(span);
+    const canvas = document.getElementById("wallpaper");
+    const ctx = canvas.getContext("2d", {
+      alpha: false,
+      colorSpace: "srgb"
     });
 
-    const premierDuration = premierText.length * 0.04 + 0.6;
-    [...leagueText].forEach((ch, i) => {
-      const span = document.createElement('span');
-      span.textContent = ch;
-      span.className = 'letter';
-      span.style.animationDelay = (premierDuration + 0.3 + i * 0.16) + 's';
-      leagueEl.appendChild(span);
-    });
+    const WIDTH = 2160;
+    const HEIGHT = 3840;
+    const TOTAL_DURATION = 15000;
 
-    function replay() {
-      document.querySelectorAll('#premier .letter, #league .letter').forEach(el => {
-        el.style.animation = 'none';
-        void el.offsetWidth;
-        el.style.animation = '';
-      });
-      const bar = document.querySelector('.bar');
-      bar.style.animation = 'none';
-      void bar.offsetWidth;
-      bar.style.animation = '';
-      const glow = document.querySelector('.glow');
-      glow.style.animation = 'none';
-      void glow.offsetWidth;
-      glow.style.animation = '';
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
+    let activeBolts = [];
+    let lightningFlash = 0;
+    let lastStrike = -2000;
+    let nextStrike = random(250, 900);
+    let startTime = performance.now();
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
     }
-    setInterval(replay, 5000);
+
+    function randomInt(min, max) {
+      return Math.floor(random(min, max + 1));
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function drawBackground(time) {
+      const pulse = Math.sin(time * 0.0014) * 0.5 + 0.5;
+
+      const bg = ctx.createRadialGradient(
+        WIDTH * 0.5,
+        HEIGHT * 0.3,
+        0,
+        WIDTH * 0.5,
+        HEIGHT * 0.48,
+        HEIGHT * 0.95
+      );
+
+      bg.addColorStop(0, "#702449");
+      bg.addColorStop(0.2, "#481532");
+      bg.addColorStop(0.42, "#260d28");
+      bg.addColorStop(0.7, "#100514");
+      bg.addColorStop(1, "#020105");
+
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const glow = ctx.createRadialGradient(
+        WIDTH * 0.5,
+        HEIGHT * 0.15,
+        0,
+        WIDTH * 0.5,
+        HEIGHT * 0.15,
+        WIDTH * (0.48 + pulse * 0.13)
+      );
+
+      glow.addColorStop(0, "rgba(255, 76, 170, 0.3)");
+      glow.addColorStop(0.4, "rgba(143, 24, 100, 0.15)");
+      glow.addColorStop(1, "rgba(20, 0, 20, 0)");
+
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const lowerGlow = ctx.createRadialGradient(
+        WIDTH * 0.7,
+        HEIGHT * 0.8,
+        0,
+        WIDTH * 0.7,
+        HEIGHT * 0.8,
+        WIDTH * 0.75
+      );
+
+      lowerGlow.addColorStop(0, "rgba(115, 24, 92, 0.28)");
+      lowerGlow.addColorStop(0.5, "rgba(52, 9, 50, 0.15)");
+      lowerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+      ctx.fillStyle = lowerGlow;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      if (lightningFlash > 0) {
+        ctx.fillStyle = `rgba(255, 210, 240, ${lightningFlash})`;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+    }
+
+    function createMainBolt(startX, startY, endX, endY) {
+      const points = [];
+      const segments = randomInt(13, 21);
+
+      let x = startX;
+      let y = startY;
+
+      points.push({ x, y });
+
+      for (let i = 1; i <= segments; i++) {
+        const progress = i / segments;
+
+        x += random(-175, 175);
+        y = startY + (endY - startY) * progress;
+
+        points.push({ x, y });
+      }
+
+      points[points.length - 1] = {
+        x: endX,
+        y: endY
+      };
+
+      return points;
+    }
+
+    function createBranch(parentPoints, startIndex, direction, depth = 0) {
+      if (
+        depth > 2 ||
+        startIndex >= parentPoints.length - 2
+      ) {
+        return null;
+      }
+
+      const origin = parentPoints[startIndex];
+      const points = [{ x: origin.x, y: origin.y }];
+
+      let x = origin.x;
+      let y = origin.y;
+
+      const steps = randomInt(3, 7);
+      const branchLength = random(220, 700);
+
+      for (let i = 1; i <= steps; i++) {
+        const progress = i / steps;
+
+        x += direction * random(35, 150);
+        y += branchLength / steps;
+
+        points.push({
+          x,
+          y
+        });
+
+        // Membuat cabang kecil dari cabang utama
+        if (
+          depth < 2 &&
+          i > 1 &&
+          Math.random() < 0.48
+        ) {
+          const smallBranch = createBranch(
+            points,
+            i - 1,
+            Math.random() > 0.5 ? 1 : -1,
+            depth + 1
+          );
+
+          if (smallBranch) {
+            points.push({
+              childBranch: smallBranch
+            });
+          }
+        }
+      }
+
+      return points;
+    }
+
+    function drawPath(
+      points,
+      width,
+      alpha,
+      color,
+      shadow
+    ) {
+      if (!points || points.length < 2) return;
+
+      ctx.save();
+
+      ctx.globalAlpha = alpha;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = width;
+      ctx.strokeStyle = color;
+      ctx.shadowColor = shadow;
+      ctx.shadowBlur = width * 11;
+
+      ctx.beginPath();
+
+      let started = false;
+
+      for (const point of points) {
+        if (point.childBranch) {
+          drawPath(
+            point.childBranch,
+            width * 0.55,
+            alpha * 0.8,
+            color,
+            shadow
+          );
+          continue;
+        }
+
+        if (!started) {
+          ctx.moveTo(point.x, point.y);
+          started = true;
+        } else {
+          ctx.lineTo(point.x, point.y);
+        }
+      }
+
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawAllBranches(points, intensity, depth = 0) {
+      if (!points || depth > 2) return;
+
+      for (let i = 1; i < points.length - 2; i++) {
+        if (
+          Math.random() < 0.34 ||
+          i === 3 ||
+          i === 6 ||
+          i === 9
+        ) {
+          const direction =
+            Math.random() > 0.5 ? 1 : -1;
+
+          const branch = createBranch(
+            points,
+            i,
+            direction,
+            depth
+          );
+
+          if (!branch) continue;
+
+          drawPath(
+            branch,
+            30,
+            intensity * 0.2,
+            "rgba(219, 23, 157, 0.9)",
+            "rgba(255, 0, 190, 1)"
+          );
+
+          drawPath(
+            branch,
+            10,
+            intensity * 0.7,
+            "rgba(255, 98, 211, 1)",
+            "rgba(255, 70, 210, 1)"
+          );
+
+          drawPath(
+            branch,
+            3,
+            intensity,
+            "#fff8ff",
+            "#ffffff"
+          );
+        }
+      }
+    }
+
+    function createStrike(time) {
+      const startX = random(-WIDTH * 0.15, WIDTH * 1.15);
+      const startY = random(-500, HEIGHT * 0.12);
+
+      const endX = clamp(
+        startX + random(-1100, 1100),
+        -WIDTH * 0.2,
+        WIDTH * 1.2
+      );
+
+      const endY = random(
+        HEIGHT * 0.28,
+        HEIGHT * 0.96
+      );
+
+      const points = createMainBolt(
+        startX,
+        startY,
+        endX,
+        endY
+      );
+
+      activeBolts.push({
+        points,
+        createdAt: time,
+        duration: random(430, 850),
+        branchesDrawn: false
+      });
+
+      lightningFlash = Math.max(
+        lightningFlash,
+        random(0.12, 0.24)
+      );
+    }
+
+    function drawLightning(time) {
+      for (let i = activeBolts.length - 1; i >= 0; i--) {
+        const bolt = activeBolts[i];
+        const progress =
+          (time - bolt.createdAt) / bolt.duration;
+
+        if (progress >= 1) {
+          activeBolts.splice(i, 1);
+          continue;
+        }
+
+        let intensity;
+
+        if (progress < 0.12) {
+          intensity = progress / 0.12;
+        } else {
+          intensity = 1 - (progress - 0.12) / 0.88;
+        }
+
+        intensity = clamp(intensity, 0, 1);
+
+        // Aura luar
+        drawPath(
+          bolt.points,
+          125,
+          intensity * 0.13,
+          "rgba(183, 13, 125, 0.9)",
+          "rgba(255, 0, 180, 1)"
+        );
+
+        // Glow merah muda
+        drawPath(
+          bolt.points,
+          58,
+          intensity * 0.35,
+          "rgba(255, 20, 160, 0.95)",
+          "rgba(255, 20, 180, 1)"
+        );
+
+        // Lapisan terang
+        drawPath(
+          bolt.points,
+          21,
+          intensity * 0.9,
+          "rgba(255, 119, 222, 1)",
+          "rgba(255, 70, 210, 1)"
+        );
+
+        // Inti putih
+        drawPath(
+          bolt.points,
+          5,
+          intensity,
+          "#fffaff",
+          "#ffffff"
+        );
+
+        if (
+          !bolt.branchesDrawn &&
+          progress < 0.5
+        ) {
+          drawAllBranches(
+            bolt.points,
+            intensity
+          );
+
+          bolt.branchesDrawn = true;
+        }
+
+        lightningFlash = Math.max(
+          lightningFlash,
+          intensity * 0.035
+        );
+      }
+    }
+
+    function drawClouds(time) {
+      ctx.save();
+      ctx.globalAlpha = 0.045;
+
+      for (let i = 0; i < 12; i++) {
+        const x =
+          ((time * (0.012 + i * 0.002) + i * 470) %
+            (WIDTH + 1100)) -
+          550;
+
+        const y = HEIGHT * (0.08 + i * 0.085);
+
+        const cloud = ctx.createRadialGradient(
+          x,
+          y,
+          0,
+          x,
+          y,
+          random(300, 750)
+        );
+
+        cloud.addColorStop(0, "#ff8dde");
+        cloud.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+        ctx.fillStyle = cloud;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+
+      ctx.restore();
+    }
+
+    function drawVignette() {
+      const vignette = ctx.createRadialGradient(
+        WIDTH / 2,
+        HEIGHT / 2,
+        WIDTH * 0.12,
+        WIDTH / 2,
+        HEIGHT / 2,
+        HEIGHT * 0.78
+      );
+
+      vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vignette.addColorStop(0.58, "rgba(0, 0, 0, 0.1)");
+      vignette.addColorStop(0.8, "rgba(0, 0, 0, 0.48)");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.95)");
+
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    }
+
+    function drawGrain() {
+      ctx.save();
+      ctx.globalAlpha = 0.025;
+
+      for (let i = 0; i < 2300; i++) {
+        const x = Math.random() * WIDTH;
+        const y = Math.random() * HEIGHT;
+        const size = random(1, 4);
+
+        ctx.fillStyle =
+          Math.random() > 0.5
+            ? "#ffb7e6"
+            : "#000000";
+
+        ctx.fillRect(x, y, size, size);
+      }
+
+      ctx.restore();
+    }
+
+    function drawFrame(elapsed) {
+      lightningFlash *= 0.84;
+
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      drawBackground(elapsed);
+      drawClouds(elapsed);
+
+      if (
+        elapsed - lastStrike > nextStrike &&
+        elapsed < TOTAL_DURATION
+      ) {
+        const strikeCount =
+          Math.random() < 0.25 ? 2 : 1;
+
+        for (let i = 0; i < strikeCount; i++) {
+          createStrike(elapsed);
+        }
+
+        lastStrike = elapsed;
+        nextStrike = random(350, 1150);
+      }
+
+      drawLightning(elapsed);
+      drawVignette();
+      drawGrain();
+    }
+
+    function animate(now) {
+      const elapsed = now - startTime;
+
+      drawFrame(elapsed);
+
+      if (
+        elapsed < TOTAL_DURATION ||
+        activeBolts.length > 0
+      ) {
+        requestAnimationFrame(animate);
+      } else {
+        drawFrame(TOTAL_DURATION);
+      }
+    }
+
+    requestAnimationFrame(animate);
   </script>
 </body>
 </html>
