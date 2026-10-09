@@ -1,234 +1,421 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Luxury Background</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Premier League Table</title>
 
   <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: #080d18;
+      color: #f5f5f7;
+    }
+
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
     }
 
-    html,
     body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      background: #09070d;
-    }
-
-    .background {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      margin: 0;
+      padding: 48px 20px;
       background:
-        linear-gradient(
-          135deg,
-          #09070d 0%,
-          #160c29 42%,
-          #321050 72%,
-          #5c1b55 100%
-        );
+        radial-gradient(ellipse at 12% 0%, #172b54 0, transparent 42%),
+        #080d18;
     }
 
-    .background::before {
-      content: "";
-      position: absolute;
-      width: 65vw;
-      height: 65vw;
-      top: -30vw;
-      left: -15vw;
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+    }
+
+    .table-card {
+      overflow: hidden;
+      border: 1px solid #263148;
+      border-radius: 18px;
+      background: rgba(16, 24, 39, .92);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    th {
+      padding: 16px 12px;
+      background: #151f31;
+      color: #a1adc2;
+      font-size: .7rem;
+      font-weight: 650;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 15px 12px;
+      border-top: 1px solid #202b3e;
+      color: #dce3ef;
+      font-size: .9rem;
+      transition: color .6s ease;
+    }
+
+    tbody tr:not(.liverpool):not(.city):hover {
+      background: rgba(255, 255, 255, .035);
+    }
+
+    td.team {
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .position {
+      color: #93a0b7;
+      font-weight: 650;
+    }
+
+    .points {
+      color: #fff;
+      font-weight: 750;
+    }
+
+    .team-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
       border-radius: 50%;
-      background: #8c2cff;
-      filter: blur(120px);
-      opacity: 0.42;
-      animation: purpleLight 15s ease-in-out infinite alternate;
+      background: #26344d;
+      color: #e1e8f4;
+      font-size: .65rem;
+      font-weight: 750;
+      transition: background .6s ease, color .6s ease;
     }
 
-    .background::after {
-      content: "";
-      position: absolute;
-      width: 60vw;
-      height: 60vw;
-      right: -22vw;
-      bottom: -28vw;
-      border-radius: 50%;
-      background: #ff9d00;
-      filter: blur(120px);
-      opacity: 0.36;
-      animation: goldLight 18s ease-in-out infinite alternate;
+    /*
+      8-second sequence:
+      1. Liverpool row highlights.
+      2. Liverpool name fades in.
+      3. "vs" fades in.
+      4. City row highlights.
+      5. Manchester City name fades in.
+    */
+
+    .liverpool {
+      animation: liverpool-row 8s ease-in-out infinite;
     }
 
-    .diamond {
-      position: absolute;
-      width: 52vw;
-      height: 52vw;
-      top: 50%;
-      left: 50%;
-      border: 1px solid rgba(255, 202, 92, 0.32);
-      transform: translate(-50%, -50%) rotate(45deg);
-      box-shadow:
-        0 0 40px rgba(255, 170, 0, 0.16),
-        inset 0 0 40px rgba(255, 170, 0, 0.1);
-      animation: rotateDiamond 25s linear infinite;
+    .city {
+      animation: city-row 8s ease-in-out infinite;
     }
 
-    .diamond::before,
-    .diamond::after {
-      content: "";
-      position: absolute;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      transform: rotate(45deg);
+    .liverpool td {
+      animation: liverpool-text 8s ease-in-out infinite;
     }
 
-    .diamond::before {
-      inset: 12%;
+    .city td {
+      animation: city-text 8s ease-in-out infinite;
     }
 
-    .diamond::after {
-      inset: 25%;
-      border-color: rgba(255, 202, 92, 0.22);
+    .liverpool .badge {
+      animation: liverpool-badge 8s ease-in-out infinite;
     }
 
-    .line {
-      position: absolute;
-      width: 160%;
-      height: 1px;
-      left: -30%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 196, 75, 0.55),
-        transparent
-      );
-      transform: rotate(-28deg);
-      filter: blur(1px);
+    .city .badge {
+      animation: city-badge 8s ease-in-out infinite;
     }
 
-    .line.one {
-      top: 27%;
-      animation: lineMove 9s ease-in-out infinite alternate;
-    }
-
-    .line.two {
-      top: 66%;
-      transform: rotate(28deg);
-      opacity: 0.55;
-      animation: lineMoveTwo 12s ease-in-out infinite alternate;
-    }
-
-    .glow {
-      position: absolute;
-      width: 22vw;
-      height: 22vw;
-      top: 32%;
-      left: 42%;
-      border-radius: 50%;
-      background: #ffb52e;
-      filter: blur(85px);
-      opacity: 0.18;
-      animation: centerGlow 8s ease-in-out infinite alternate;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          115deg,
-          rgba(255, 255, 255, 0.05),
-          transparent 35%,
-          rgba(0, 0, 0, 0.25)
-        );
-      backdrop-filter: blur(2px);
-    }
-
-    @keyframes purpleLight {
-      from {
-        transform: translate(0, 0) scale(1);
+    @keyframes liverpool-row {
+      0%, 4%, 29%, 100% {
+        background: transparent;
+        box-shadow: inset 0 0 transparent;
       }
-
-      to {
-        transform: translate(25vw, 18vh) scale(1.25);
+      8%, 25% {
+        background: linear-gradient(90deg, #9f1232, #d82443);
+        box-shadow: inset 5px 0 #ff6079;
       }
     }
 
-    @keyframes goldLight {
-      from {
-        transform: translate(0, 0) scale(1);
+    @keyframes city-row {
+      0%, 47%, 72%, 100% {
+        background: transparent;
+        box-shadow: inset 0 0 transparent;
       }
-
-      to {
-        transform: translate(-22vw, -20vh) scale(1.3);
-      }
-    }
-
-    @keyframes rotateDiamond {
-      from {
-        transform: translate(-50%, -50%) rotate(45deg);
-      }
-
-      to {
-        transform: translate(-50%, -50%) rotate(405deg);
+      51%, 68% {
+        background: linear-gradient(90deg, #71cfe8, #b6effa);
+        box-shadow: inset 5px 0 #fff;
       }
     }
 
-    @keyframes lineMove {
-      from {
-        transform: translateX(-10%) rotate(-28deg);
-      }
+    @keyframes liverpool-text {
+      0%, 4%, 29%, 100% { color: #dce3ef; }
+      8%, 25% { color: #fff; }
+    }
 
-      to {
-        transform: translateX(10%) rotate(-22deg);
+    @keyframes city-text {
+      0%, 47%, 72%, 100% { color: #dce3ef; }
+      51%, 68% { color: #06233a; }
+    }
+
+    @keyframes liverpool-badge {
+      0%, 4%, 29%, 100% {
+        background: #26344d;
+        color: #e1e8f4;
+      }
+      8%, 25% {
+        background: #fff;
+        color: #9f1232;
       }
     }
 
-    @keyframes lineMoveTwo {
-      from {
-        transform: translateX(8%) rotate(28deg);
+    @keyframes city-badge {
+      0%, 47%, 72%, 100% {
+        background: #26344d;
+        color: #e1e8f4;
       }
-
-      to {
-        transform: translateX(-8%) rotate(22deg);
+      51%, 68% {
+        background: rgba(255, 255, 255, .85);
+        color: #06233a;
       }
     }
 
-    @keyframes centerGlow {
-      from {
-        transform: scale(0.8);
-        opacity: 0.12;
-      }
+    .match-info {
+      margin-top: 18px;
+      padding: 20px 16px;
+      border: 1px solid #263148;
+      border-radius: 14px;
+      background: rgba(16, 24, 39, .92);
+      text-align: center;
+    }
 
-      to {
-        transform: scale(1.35);
-        opacity: 0.3;
+    .matchup {
+      display: flex;
+      min-height: 1.5em;
+      justify-content: center;
+      align-items: baseline;
+      gap: .35em;
+      margin: 0 0 8px;
+      color: #f5f5f7;
+      font-size: clamp(1.2rem, 4vw, 1.65rem);
+      font-weight: 700;
+      letter-spacing: -.025em;
+    }
+
+    .match-liverpool,
+    .match-vs,
+    .match-city {
+      opacity: 0;
+      transform: translateY(5px);
+      animation-fill-mode: both;
+    }
+
+    /* Liverpool appears only after its row has been highlighted. */
+    .match-liverpool {
+      animation: reveal-liverpool 8s ease-in-out infinite;
+    }
+
+    /* "vs" arrives after Liverpool's name. */
+    .match-vs {
+      animation: reveal-vs 8s ease-in-out infinite;
+    }
+
+    /* City appears after its row begins highlighting. */
+    .match-city {
+      animation: reveal-city 8s ease-in-out infinite;
+    }
+
+    @keyframes reveal-liverpool {
+      0%, 17% {
+        opacity: 0;
+        transform: translateY(5px);
       }
+      22%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes reveal-vs {
+      0%, 32% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      37%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes reveal-city {
+      0%, 56% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      61%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .match-date {
+      margin: 0;
+      color: #aab6cc;
+      font-size: .82rem;
+      font-weight: 650;
+      letter-spacing: .1em;
     }
 
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
       *::after {
-        animation: none !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+
+      .match-liverpool,
+      .match-vs,
+      .match-city {
+        opacity: 1;
+        transform: none;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="background">
-    <div class="diamond"></div>
-    <div class="line one"></div>
-    <div class="line two"></div>
-    <div class="glow"></div>
-    <div class="overlay"></div>
+  <main>
+    <section class="table-card" aria-label="Premier League standings">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Pos</th>
+              <th scope="col" style="text-align:left">Club</th>
+              <th scope="col">P</th>
+              <th scope="col">W</th>
+              <th scope="col">D</th>
+              <th scope="col">L</th>
+              <th scope="col">GF</th>
+              <th scope="col">GA</th>
+              <th scope="col">GD</th>
+              <th scope="col">Pts</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="city">
+              <td class="position">1</td>
+              <td class="team"><span class="team-name"><span class="badge">MCI</span>Manchester City</span></td>
+              <td>5</td><td>5</td><td>0</td><td>0</td><td>13</td><td>5</td><td>+8</td><td class="points">15</td>
+            </tr>
+            <tr>
+              <td class="position">2</td><td class="team">Arsenal</td>
+              <td>5</td><td>4</td><td>0</td><td>1</td><td>8</td><td>4</td><td>+4</td><td class="points">12</td>
+            </tr>
+            <tr>
+              <td class="position">3</td><td class="team">Brighton and Hove Albion</td>
+              <td>5</td><td>3</td><td>1</td><td>1</td><td>16</td><td>5</td><td>+11</td><td class="points">10</td>
+            </tr>
+            <tr>
+              <td class="position">4</td><td class="team">Brentford</td>
+              <td>5</td><td>2</td><td>3</td><td>0</td><td>10</td><td>4</td><td>+6</td><td class="points">9</td>
+            </tr>
+            <tr>
+              <td class="position">5</td><td class="team">Leeds United</td>
+              <td>5</td><td>2</td><td>3</td><td>0</td><td>7</td><td>3</td><td>+4</td><td class="points">9</td>
+            </tr>
+            <tr class="liverpool">
+              <td class="position">6</td>
+              <td class="team"><span class="team-name"><span class="badge">LIV</span>Liverpool</span></td>
+              <td>5</td><td>2</td><td>3</td><td>0</td><td>7</td><td>4</td><td>+3</td><td class="points">9</td>
+            </tr>
+            <tr>
+              <td class="position">7</td><td class="team">Everton</td>
+              <td>5</td><td>2</td><td>3</td><td>0</td><td>6</td><td>3</td><td>+3</td><td class="points">9</td>
+            </tr>
+            <tr>
+              <td class="position">8</td><td class="team">Hull City</td>
+              <td>5</td><td>2</td><td>2</td><td>1</td><td>6</td><td>4</td><td>+2</td><td class="points">8</td>
+            </tr>
+            <tr>
+              <td class="position">9</td><td class="team">Newcastle United</td>
+              <td>5</td><td>2</td><td>2</td><td>1</td><td>9</td><td>9</td><td>0</td><td class="points">8</td>
+            </tr>
+            <tr>
+              <td class="position">10</td><td class="team">Chelsea</td>
+              <td>5</td><td>2</td><td>1</td><td>2</td><td>10</td><td>12</td><td>-2</td><td class="points">7</td>
+            </tr>
+            <tr>
+              <td class="position">11</td><td class="team">Ipswich Town</td>
+              <td>5</td><td>2</td><td>0</td><td>3</td><td>7</td><td>11</td><td>-4</td><td class="points">6</td>
+            </tr>
+            <tr>
+              <td class="position">12</td><td class="team">Manchester United</td>
+              <td>5</td><td>1</td><td>2</td><td>2</td><td>8</td><td>8</td><td>0</td><td class="points">5</td>
+            </tr>
+            <tr>
+              <td class="position">13</td><td class="team">Nottingham Forest</td>
+              <td>5</td><td>1</td><td>2</td><td>2</td><td>4</td><td>5</td><td>-1</td><td class="points">5</td>
+            </tr>
+            <tr>
+              <td class="position">14</td><td class="team">Sunderland</td>
+              <td>5</td><td>1</td><td>1</td><td>3</td><td>6</td><td>10</td><td>-4</td><td class="points">4</td>
+            </tr>
+            <tr>
+              <td class="position">15</td><td class="team">Crystal Palace</td>
+              <td>5</td><td>1</td><td>1</td><td>3</td><td>6</td><td>11</td><td>-5</td><td class="points">4</td>
+            </tr>
+            <tr>
+              <td class="position">16</td><td class="team">Aston Villa</td>
+              <td>5</td><td>1</td><td>1</td><td>3</td><td>4</td><td>9</td><td>-5</td><td class="points">4</td>
+            </tr>
+            <tr>
+              <td class="position">17</td><td class="team">Bournemouth</td>
+              <td>5</td><td>0</td><td>3</td><td>2</td><td>6</td><td>8</td><td>-2</td><td class="points">3</td>
+            </tr>
+            <tr>
+              <td class="position">18</td><td class="team">Coventry City</td>
+              <td>5</td><td>1</td><td>0</td><td>4</td><td>1</td><td>10</td><td>-9</td><td class="points">3</td>
+            </tr>
+            <tr>
+              <td class="position">19</td><td class="team">Fulham</td>
+              <td>5</td><td>0</td><td>2</td><td>3</td><td>5</td><td>8</td><td>-3</td><td class="points">2</td>
+            </tr>
+            <tr>
+              <td class="position">20</td><td class="team">Tottenham Hotspur</td>
+              <td>5</td><td>0</td><td>2</td><td>3</td><td>2</td><td>8</td><td>-6</td><td class="points">2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="match-info">
+      <p class="matchup">
+        <span class="match-liverpool">Liverpool</span>
+        <span class="match-vs">vs</span>
+        <span class="match-city">Manchester City</span>
+      </p>
+      <p class="match-date">SUN, 11 OCT 2026 04:30 PM</p>
+    </div>
   </main>
 </body>
 </html>
