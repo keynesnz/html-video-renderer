@@ -21,7 +21,7 @@
     body {
       min-height: 100vh;
       margin: 0;
-      padding: 48px 20px;
+      padding: clamp(16px, 4vw, 48px);
       background:
         radial-gradient(ellipse at 12% 0%, #172b54 0, transparent 42%),
         #080d18;
@@ -32,41 +32,67 @@
       margin: 0 auto;
     }
 
+    .page-header {
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #8ea4c7;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -.04em;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #aab6cc;
+      font-size: .95rem;
+    }
+
     .table-card {
       overflow: hidden;
       border: 1px solid #263148;
-      border-radius: 18px;
-      background: rgba(16, 24, 39, .92);
-      box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+      border-radius: 16px;
+      background: rgba(16, 24, 39, .96);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .35);
     }
 
     .table-wrap {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
-      min-width: 720px;
+      min-width: 760px;
       border-collapse: collapse;
       text-align: center;
     }
 
     th {
-      padding: 16px 12px;
+      padding: 15px 12px;
       background: #151f31;
       color: #a1adc2;
-      font-size: .7rem;
-      font-weight: 650;
-      letter-spacing: .09em;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
       text-transform: uppercase;
     }
 
     td {
-      padding: 15px 12px;
+      padding: 13px 12px;
       border-top: 1px solid #202b3e;
       color: #dce3ef;
-      font-size: .9rem;
-      transition: color .6s ease;
+      font-size: .92rem;
+      transition: color .4s ease;
     }
 
     tbody tr:not(.liverpool):not(.city):hover {
@@ -99,23 +125,15 @@
       display: inline-grid;
       width: 30px;
       height: 30px;
+      flex: 0 0 auto;
       place-items: center;
       border-radius: 50%;
       background: #26344d;
       color: #e1e8f4;
       font-size: .65rem;
       font-weight: 750;
-      transition: background .6s ease, color .6s ease;
+      transition: background .4s ease, color .4s ease;
     }
-
-    /*
-      8-second sequence:
-      1. Liverpool row highlights.
-      2. Liverpool name fades in.
-      3. "vs" fades in.
-      4. City row highlights.
-      5. Manchester City name fades in.
-    */
 
     .liverpool {
       animation: liverpool-row 8s ease-in-out infinite;
@@ -197,11 +215,20 @@
 
     .match-info {
       margin-top: 18px;
-      padding: 20px 16px;
+      padding: 20px;
       border: 1px solid #263148;
       border-radius: 14px;
-      background: rgba(16, 24, 39, .92);
+      background: rgba(16, 24, 39, .96);
       text-align: center;
+    }
+
+    .match-label {
+      margin: 0 0 10px;
+      color: #8ea4c7;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
     }
 
     .matchup {
@@ -209,12 +236,12 @@
       min-height: 1.5em;
       justify-content: center;
       align-items: baseline;
-      gap: .35em;
-      margin: 0 0 8px;
+      gap: .4em;
+      margin: 0 0 10px;
       color: #f5f5f7;
-      font-size: clamp(1.2rem, 4vw, 1.65rem);
-      font-weight: 700;
-      letter-spacing: -.025em;
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 750;
+      letter-spacing: -.03em;
     }
 
     .match-liverpool,
@@ -225,60 +252,70 @@
       animation-fill-mode: both;
     }
 
-    /* Liverpool appears only after its row has been highlighted. */
     .match-liverpool {
       animation: reveal-liverpool 8s ease-in-out infinite;
     }
 
-    /* "vs" arrives after Liverpool's name. */
     .match-vs {
       animation: reveal-vs 8s ease-in-out infinite;
     }
 
-    /* City appears after its row begins highlighting. */
     .match-city {
       animation: reveal-city 8s ease-in-out infinite;
     }
 
     @keyframes reveal-liverpool {
-      0%, 17% {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-      22%, 100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0%, 17% { opacity: 0; transform: translateY(5px); }
+      22%, 100% { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes reveal-vs {
-      0%, 32% {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-      37%, 100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0%, 32% { opacity: 0; transform: translateY(5px); }
+      37%, 100% { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes reveal-city {
-      0%, 56% {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-      61%, 100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0%, 56% { opacity: 0; transform: translateY(5px); }
+      61%, 100% { opacity: 1; transform: translateY(0); }
     }
 
     .match-date {
       margin: 0;
       color: #aab6cc;
-      font-size: .82rem;
+      font-size: .85rem;
       font-weight: 650;
-      letter-spacing: .1em;
+      letter-spacing: .08em;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .page-header {
+        margin-bottom: 16px;
+      }
+
+      .table-card {
+        border-radius: 12px;
+      }
+
+      th {
+        padding: 13px 10px;
+      }
+
+      td {
+        padding: 12px 10px;
+      }
+
+      .match-info {
+        margin-top: 14px;
+        padding: 18px 12px;
+      }
+
+      .match-date {
+        font-size: .75rem;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -302,6 +339,12 @@
 
 <body>
   <main>
+    <header class="page-header">
+      <p class="eyebrow">2026 / 27 Season</p>
+      <h1>Premier League</h1>
+      <p class="subtitle">League standings</p>
+    </header>
+
     <section class="table-card" aria-label="Premier League standings">
       <div class="table-wrap">
         <table>
@@ -319,7 +362,6 @@
               <th scope="col">Pts</th>
             </tr>
           </thead>
-
           <tbody>
             <tr class="city">
               <td class="position">1</td>
@@ -408,14 +450,15 @@
       </div>
     </section>
 
-    <div class="match-info">
+    <section class="match-info" aria-label="Featured match">
+      <p class="match-label">Featured match</p>
       <p class="matchup">
         <span class="match-liverpool">Liverpool</span>
         <span class="match-vs">vs</span>
         <span class="match-city">Manchester City</span>
       </p>
-      <p class="match-date">SUN, 11 OCT 2026 04:30 PM</p>
-    </div>
+      <p class="match-date">SUN, 11 OCT 2026 · 04:30 PM</p>
+    </section>
   </main>
 </body>
 </html>
