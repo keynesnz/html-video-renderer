@@ -21,7 +21,7 @@
     body {
       min-height: 100vh;
       margin: 0;
-      padding: clamp(16px, 4vw, 48px);
+      padding: 48px 20px;
       background:
         radial-gradient(ellipse at 12% 0%, #172b54 0, transparent 42%),
         #080d18;
@@ -32,67 +32,41 @@
       margin: 0 auto;
     }
 
-    .page-header {
-      margin-bottom: 22px;
-    }
-
-    .eyebrow {
-      margin: 0 0 8px;
-      color: #8ea4c7;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      letter-spacing: -.04em;
-    }
-
-    .subtitle {
-      margin: 8px 0 0;
-      color: #aab6cc;
-      font-size: .95rem;
-    }
-
     .table-card {
       overflow: hidden;
       border: 1px solid #263148;
-      border-radius: 16px;
-      background: rgba(16, 24, 39, .96);
-      box-shadow: 0 24px 70px rgba(0, 0, 0, .35);
+      border-radius: 18px;
+      background: rgba(16, 24, 39, .92);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
     }
 
     .table-wrap {
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
-      min-width: 760px;
+      min-width: 720px;
       border-collapse: collapse;
       text-align: center;
     }
 
     th {
-      padding: 15px 12px;
+      padding: 16px 12px;
       background: #151f31;
       color: #a1adc2;
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .08em;
+      font-size: .7rem;
+      font-weight: 650;
+      letter-spacing: .09em;
       text-transform: uppercase;
     }
 
     td {
-      padding: 13px 12px;
+      padding: 15px 12px;
       border-top: 1px solid #202b3e;
       color: #dce3ef;
-      font-size: .92rem;
-      transition: color .4s ease;
+      font-size: .9rem;
+      transition: color .6s ease;
     }
 
     tbody tr:not(.liverpool):not(.city):hover {
@@ -125,15 +99,23 @@
       display: inline-grid;
       width: 30px;
       height: 30px;
-      flex: 0 0 auto;
       place-items: center;
       border-radius: 50%;
       background: #26344d;
       color: #e1e8f4;
       font-size: .65rem;
       font-weight: 750;
-      transition: background .4s ease, color .4s ease;
+      transition: background .6s ease, color .6s ease;
     }
+
+    /*
+      8-second sequence:
+      1. Liverpool row highlights.
+      2. Liverpool name fades in.
+      3. "vs" fades in.
+      4. City row highlights.
+      5. Manchester City name fades in.
+    */
 
     .liverpool {
       animation: liverpool-row 8s ease-in-out infinite;
@@ -215,20 +197,11 @@
 
     .match-info {
       margin-top: 18px;
-      padding: 20px;
+      padding: 20px 16px;
       border: 1px solid #263148;
       border-radius: 14px;
-      background: rgba(16, 24, 39, .96);
+      background: rgba(16, 24, 39, .92);
       text-align: center;
-    }
-
-    .match-label {
-      margin: 0 0 10px;
-      color: #8ea4c7;
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .13em;
-      text-transform: uppercase;
     }
 
     .matchup {
@@ -236,12 +209,12 @@
       min-height: 1.5em;
       justify-content: center;
       align-items: baseline;
-      gap: .4em;
-      margin: 0 0 10px;
+      gap: .35em;
+      margin: 0 0 8px;
       color: #f5f5f7;
-      font-size: clamp(1.3rem, 4vw, 2rem);
-      font-weight: 750;
-      letter-spacing: -.03em;
+      font-size: clamp(1.2rem, 4vw, 1.65rem);
+      font-weight: 700;
+      letter-spacing: -.025em;
     }
 
     .match-liverpool,
@@ -265,57 +238,44 @@
     }
 
     @keyframes reveal-liverpool {
-      0%, 17% { opacity: 0; transform: translateY(5px); }
-      22%, 100% { opacity: 1; transform: translateY(0); }
+      0%, 17% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      22%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes reveal-vs {
-      0%, 32% { opacity: 0; transform: translateY(5px); }
-      37%, 100% { opacity: 1; transform: translateY(0); }
+      0%, 32% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      37%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes reveal-city {
-      0%, 56% { opacity: 0; transform: translateY(5px); }
-      61%, 100% { opacity: 1; transform: translateY(0); }
+      0%, 56% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      61%, 100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .match-date {
       margin: 0;
       color: #aab6cc;
-      font-size: .85rem;
+      font-size: .82rem;
       font-weight: 650;
-      letter-spacing: .08em;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 20px 12px;
-      }
-
-      .page-header {
-        margin-bottom: 16px;
-      }
-
-      .table-card {
-        border-radius: 12px;
-      }
-
-      th {
-        padding: 13px 10px;
-      }
-
-      td {
-        padding: 12px 10px;
-      }
-
-      .match-info {
-        margin-top: 14px;
-        padding: 18px 12px;
-      }
-
-      .match-date {
-        font-size: .75rem;
-      }
+      letter-spacing: .1em;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -339,12 +299,6 @@
 
 <body>
   <main>
-    <header class="page-header">
-      <p class="eyebrow">2026 / 27 Season</p>
-      <h1>Premier League</h1>
-      <p class="subtitle">League standings</p>
-    </header>
-
     <section class="table-card" aria-label="Premier League standings">
       <div class="table-wrap">
         <table>
@@ -362,103 +316,151 @@
               <th scope="col">Pts</th>
             </tr>
           </thead>
+
           <tbody>
             <tr class="city">
               <td class="position">1</td>
-              <td class="team"><span class="team-name"><span class="badge">MCI</span>Manchester City</span></td>
-              <td>5</td><td>5</td><td>0</td><td>0</td><td>13</td><td>5</td><td>+8</td><td class="points">15</td>
+              <td class="team">
+                <span class="team-name">
+                  <span class="badge">MCI</span>Manchester City
+                </span>
+              </td>
+              <td>5</td><td>5</td><td>0</td><td>0</td>
+              <td>13</td><td>5</td><td>+8</td>
+              <td class="points">15</td>
             </tr>
             <tr>
               <td class="position">2</td><td class="team">Arsenal</td>
-              <td>5</td><td>4</td><td>0</td><td>1</td><td>8</td><td>4</td><td>+4</td><td class="points">12</td>
+              <td>6</td><td>5</td><td>0</td><td>1</td>
+              <td>10</td><td>5</td><td>+5</td>
+              <td class="points">15</td>
             </tr>
             <tr>
               <td class="position">3</td><td class="team">Brighton and Hove Albion</td>
-              <td>5</td><td>3</td><td>1</td><td>1</td><td>16</td><td>5</td><td>+11</td><td class="points">10</td>
+              <td>6</td><td>4</td><td>1</td><td>1</td>
+              <td>18</td><td>5</td><td>+13</td>
+              <td class="points">13</td>
             </tr>
             <tr>
               <td class="position">4</td><td class="team">Brentford</td>
-              <td>5</td><td>2</td><td>3</td><td>0</td><td>10</td><td>4</td><td>+6</td><td class="points">9</td>
+              <td>6</td><td>2</td><td>4</td><td>0</td>
+              <td>12</td><td>6</td><td>+6</td>
+              <td class="points">10</td>
             </tr>
             <tr>
-              <td class="position">5</td><td class="team">Leeds United</td>
-              <td>5</td><td>2</td><td>3</td><td>0</td><td>7</td><td>3</td><td>+4</td><td class="points">9</td>
+              <td class="position">5</td><td class="team">Chelsea</td>
+              <td>6</td><td>3</td><td>1</td><td>2</td>
+              <td>15</td><td>13</td><td>+2</td>
+              <td class="points">10</td>
+            </tr>
+            <tr>
+              <td class="position">6</td><td class="team">Leeds United</td>
+              <td>6</td><td>2</td><td>3</td><td>1</td>
+              <td>8</td><td>5</td><td>+3</td>
+              <td class="points">9</td>
             </tr>
             <tr class="liverpool">
-              <td class="position">6</td>
-              <td class="team"><span class="team-name"><span class="badge">LIV</span>Liverpool</span></td>
-              <td>5</td><td>2</td><td>3</td><td>0</td><td>7</td><td>4</td><td>+3</td><td class="points">9</td>
+              <td class="position">7</td>
+              <td class="team">
+                <span class="team-name">
+                  <span class="badge">LIV</span>Liverpool
+                </span>
+              </td>
+              <td>5</td><td>2</td><td>3</td><td>0</td>
+              <td>7</td><td>4</td><td>+3</td>
+              <td class="points">9</td>
             </tr>
             <tr>
-              <td class="position">7</td><td class="team">Everton</td>
-              <td>5</td><td>2</td><td>3</td><td>0</td><td>6</td><td>3</td><td>+3</td><td class="points">9</td>
+              <td class="position">8</td><td class="team">Everton</td>
+              <td>5</td><td>2</td><td>3</td><td>0</td>
+              <td>6</td><td>3</td><td>+3</td>
+              <td class="points">9</td>
             </tr>
             <tr>
-              <td class="position">8</td><td class="team">Hull City</td>
-              <td>5</td><td>2</td><td>2</td><td>1</td><td>6</td><td>4</td><td>+2</td><td class="points">8</td>
+              <td class="position">9</td><td class="team">Ipswich Town</td>
+              <td>6</td><td>3</td><td>0</td><td>3</td>
+              <td>9</td><td>12</td><td>-3</td>
+              <td class="points">9</td>
             </tr>
             <tr>
-              <td class="position">9</td><td class="team">Newcastle United</td>
-              <td>5</td><td>2</td><td>2</td><td>1</td><td>9</td><td>9</td><td>0</td><td class="points">8</td>
+              <td class="position">10</td><td class="team">Hull City</td>
+              <td>5</td><td>2</td><td>2</td><td>1</td>
+              <td>6</td><td>4</td><td>+2</td>
+              <td class="points">8</td>
             </tr>
             <tr>
-              <td class="position">10</td><td class="team">Chelsea</td>
-              <td>5</td><td>2</td><td>1</td><td>2</td><td>10</td><td>12</td><td>-2</td><td class="points">7</td>
-            </tr>
-            <tr>
-              <td class="position">11</td><td class="team">Ipswich Town</td>
-              <td>5</td><td>2</td><td>0</td><td>3</td><td>7</td><td>11</td><td>-4</td><td class="points">6</td>
+              <td class="position">11</td><td class="team">Newcastle United</td>
+              <td>5</td><td>2</td><td>2</td><td>1</td>
+              <td>9</td><td>9</td><td>0</td>
+              <td class="points">8</td>
             </tr>
             <tr>
               <td class="position">12</td><td class="team">Manchester United</td>
-              <td>5</td><td>1</td><td>2</td><td>2</td><td>8</td><td>8</td><td>0</td><td class="points">5</td>
+              <td>6</td><td>1</td><td>3</td><td>2</td>
+              <td>9</td><td>9</td><td>0</td>
+              <td class="points">6</td>
             </tr>
             <tr>
               <td class="position">13</td><td class="team">Nottingham Forest</td>
-              <td>5</td><td>1</td><td>2</td><td>2</td><td>4</td><td>5</td><td>-1</td><td class="points">5</td>
+              <td>5</td><td>1</td><td>2</td><td>2</td>
+              <td>4</td><td>5</td><td>-1</td>
+              <td class="points">5</td>
             </tr>
             <tr>
-              <td class="position">14</td><td class="team">Sunderland</td>
-              <td>5</td><td>1</td><td>1</td><td>3</td><td>6</td><td>10</td><td>-4</td><td class="points">4</td>
+              <td class="position">14</td><td class="team">Aston Villa</td>
+              <td>6</td><td>1</td><td>2</td><td>3</td>
+              <td>6</td><td>11</td><td>-5</td>
+              <td class="points">5</td>
             </tr>
             <tr>
               <td class="position">15</td><td class="team">Crystal Palace</td>
-              <td>5</td><td>1</td><td>1</td><td>3</td><td>6</td><td>11</td><td>-5</td><td class="points">4</td>
+              <td>5</td><td>1</td><td>1</td><td>3</td>
+              <td>6</td><td>11</td><td>-5</td>
+              <td class="points">4</td>
             </tr>
             <tr>
-              <td class="position">16</td><td class="team">Aston Villa</td>
-              <td>5</td><td>1</td><td>1</td><td>3</td><td>4</td><td>9</td><td>-5</td><td class="points">4</td>
+              <td class="position">16</td><td class="team">Sunderland</td>
+              <td>6</td><td>1</td><td>1</td><td>4</td>
+              <td>6</td><td>12</td><td>-6</td>
+              <td class="points">4</td>
             </tr>
             <tr>
               <td class="position">17</td><td class="team">Bournemouth</td>
-              <td>5</td><td>0</td><td>3</td><td>2</td><td>6</td><td>8</td><td>-2</td><td class="points">3</td>
+              <td>6</td><td>0</td><td>3</td><td>3</td>
+              <td>7</td><td>13</td><td>-6</td>
+              <td class="points">3</td>
             </tr>
             <tr>
-              <td class="position">18</td><td class="team">Coventry City</td>
-              <td>5</td><td>1</td><td>0</td><td>4</td><td>1</td><td>10</td><td>-9</td><td class="points">3</td>
+              <td class="position">18</td><td class="team">Tottenham Hotspur</td>
+              <td>6</td><td>0</td><td>3</td><td>3</td>
+              <td>3</td><td>9</td><td>-6</td>
+              <td class="points">3</td>
             </tr>
             <tr>
-              <td class="position">19</td><td class="team">Fulham</td>
-              <td>5</td><td>0</td><td>2</td><td>3</td><td>5</td><td>8</td><td>-3</td><td class="points">2</td>
+              <td class="position">19</td><td class="team">Coventry City</td>
+              <td>5</td><td>1</td><td>0</td><td>4</td>
+              <td>1</td><td>10</td><td>-9</td>
+              <td class="points">3</td>
             </tr>
             <tr>
-              <td class="position">20</td><td class="team">Tottenham Hotspur</td>
-              <td>5</td><td>0</td><td>2</td><td>3</td><td>2</td><td>8</td><td>-6</td><td class="points">2</td>
+              <td class="position">20</td><td class="team">Fulham</td>
+              <td>6</td><td>0</td><td>2</td><td>4</td>
+              <td>6</td><td>10</td><td>-4</td>
+              <td class="points">2</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <section class="match-info" aria-label="Featured match">
-      <p class="match-label">Featured match</p>
+    <div class="match-info">
       <p class="matchup">
         <span class="match-liverpool">Liverpool</span>
         <span class="match-vs">vs</span>
         <span class="match-city">Manchester City</span>
       </p>
-      <p class="match-date">SUN, 11 OCT 2026 · 04:30 PM</p>
-    </section>
+      <p class="match-date">SUN, 11 OCT 2026 04:30 PM</p>
+    </div>
   </main>
 </body>
 </html>
